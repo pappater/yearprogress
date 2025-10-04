@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "predeploy": "cp index.html style.css ui.js dist/",
+    "predeploy": "mkdir -p dist && cp index.html style.css *.js dist/",
     "deploy": "gh-pages -d dist"
   },
   "author": "pratheesh",
