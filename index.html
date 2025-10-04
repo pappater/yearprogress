@@ -8,7 +8,16 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   </head>
   <body>
+    <div id="loader-overlay" style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(24,28,32,0.85);align-items:center;justify-content:center;">
+      <div style="background:#23272f;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 2px 16px #0008;text-align:center;">
+        <div class="loader-spinner" style="margin-bottom:1.2rem;width:48px;height:48px;border:6px solid #00cec9;border-top:6px solid #23272f;border-radius:50%;animation:spin 1s linear infinite;"></div>
+        <div style="color:#00cec9;font-size:1.2rem;">Loading...</div>
+      </div>
+    </div>
     <div id="user-bar">
+    <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
       <button id="login-github">Login with GitHub</button>
       <span id="user-info" style="display: none"></span>
       <button id="logout-github" style="display: none">Logout</button>
