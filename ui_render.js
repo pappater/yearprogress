@@ -15,11 +15,12 @@ let selectedMilestone = {
   day: null,
   custom: null,
 };
-console.log("[DEBUG] Initial selectedMilestone:", selectedMilestone);
 
 function saveSelectedMilestone() {
-  console.log("[DEBUG] saveSelectedMilestone called. Saving:", selectedMilestone);
-  localStorage.setItem(SELECTED_MILESTONE_KEY, JSON.stringify(selectedMilestone));
+  localStorage.setItem(
+    SELECTED_MILESTONE_KEY,
+    JSON.stringify(selectedMilestone)
+  );
 }
 
 function loadSelectedMilestone() {
@@ -27,16 +28,12 @@ function loadSelectedMilestone() {
   if (data) {
     try {
       selectedMilestone = JSON.parse(data);
-      console.log("[DEBUG] loadSelectedMilestone loaded:", selectedMilestone);
-    } catch (e) {
-      console.warn("[DEBUG] loadSelectedMilestone parse error:", e);
-    }
-  } else {
-    console.log("[DEBUG] loadSelectedMilestone: nothing in storage");
+    } catch (e) {}
   }
 }
 
 function showDailyQuote(date) {
+  // Find the daily-quote in the footer only
   const el = document.getElementById("daily-quote");
   if (!el) return;
   // Use day of year as index for quote
@@ -210,7 +207,6 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
   clearMilestoneMarkers(barId);
   const info = infoId ? document.getElementById(infoId) : null;
   if (info) info.textContent = "";
-  console.log(`[DEBUG] renderMilestoneMarkers for ${barId}, selKey=${selKey}, selectedMilestone:`, selectedMilestone);
   milestones.forEach((m) => {
     const d = new Date(m.date);
     if (isNaN(d) || d < rangeStart || d > rangeEnd) return;
@@ -220,17 +216,20 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
     marker.style.left = percent + "%";
     marker.tabIndex = 0;
     marker.style.position = "absolute";
+
     // Restore selection and label if selected
     if (
       selKey &&
       selectedMilestone[selKey] &&
-      isSameMilestone(selectedMilestone[selKey], { date: m.date, label: m.label })
+      isSameMilestone(selectedMilestone[selKey], {
+        date: m.date,
+        label: m.label,
+      })
     ) {
       marker.classList.add("selected");
       if (info)
         info.textContent =
           (m.label ? m.label + " - " : "") + d.toLocaleDateString();
-      console.log(`[DEBUG] Marker selected for ${selKey} at milestone`, m);
     }
     marker.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -243,7 +242,6 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
       marker.classList.add("selected");
       if (selKey) {
         selectedMilestone[selKey] = { date: m.date, label: m.label };
-        console.log(`[DEBUG] Marker clicked for ${selKey}, set selectedMilestone:`, selectedMilestone);
         saveSelectedMilestone();
       }
     });
@@ -253,7 +251,6 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
 
 export function setupEventListeners() {
   loadSelectedMilestone();
-  console.log("[DEBUG] setupEventListeners loaded selectedMilestone:", selectedMilestone);
   document
     .getElementById("login-github")
     .addEventListener("click", loginWithGitHub);

@@ -8,23 +8,68 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   </head>
   <body>
-    <div id="loader-overlay" style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(24,28,32,0.85);align-items:center;justify-content:center;">
-      <div style="background:#23272f;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 2px 16px #0008;text-align:center;">
-        <div class="loader-spinner" style="margin-bottom:1.2rem;width:48px;height:48px;border:6px solid #00cec9;border-top:6px solid #23272f;border-radius:50%;animation:spin 1s linear infinite;"></div>
-        <div style="color:#00cec9;font-size:1.2rem;">Loading...</div>
+    <div
+      id="loader-overlay"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(24, 28, 32, 0.85);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: #23272f;
+          padding: 2rem 2.5rem;
+          border-radius: 16px;
+          box-shadow: 0 2px 16px #0008;
+          text-align: center;
+        "
+      >
+        <div
+          class="loader-spinner"
+          style="
+            margin-bottom: 1.2rem;
+            width: 48px;
+            height: 48px;
+            border: 6px solid #00cec9;
+            border-top: 6px solid #23272f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          "
+        ></div>
+        <div style="color: #00cec9; font-size: 1.2rem">Loading...</div>
       </div>
     </div>
     <div id="user-bar">
-    <style>
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+      <style>
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
       <button id="login-github">Login with GitHub</button>
       <span id="user-info" style="display: none"></span>
       <button id="logout-github" style="display: none">Logout</button>
     </div>
     <div class="container">
-  <h1>Year Progress</h1>
-  <div id="daily-quote" class="daily-quote"></div>
+      <header class="app-header">
+        <h1 class="app-title">Year Progress Tracker</h1>
+        <div class="app-subtitle">
+          Visualize your year, month, week, and day progress
+        </div>
+      </header>
+      <!-- Daily quote will be moved to the footer below -->
       <div class="share-section">
         <button id="copy-progress">Copy Progress as Text</button>
         <button id="share-image">Share as Image</button>
@@ -87,15 +132,24 @@
         <div class="milestone-info" id="milestone-info-custom"></div>
       </div>
       <p class="date-info" id="date-info"></p>
-      <footer style="text-align:center; color:#888; font-size:0.95em; margin: 32px 0 8px 0;">
-        <span>
-          Year Progress &copy; 2025 &mdash; 
-          <a href="https://github.com/pappater/yearprogress" target="_blank" style="color:#888; text-decoration:underline;">Source on GitHub</a>
+      <footer <footer style="text-align: center; margin: 32px 0 8px 0">
+        <div id="daily-quote"></div>
+        <div>
+          Year Progress &copy; 2025 &mdash;
+          <a href="https://github.com/pappater/yearprogress" target="_blank"
+            >Source on GitHub</a
+          >
           &nbsp;|&nbsp;
-          <a href="https://pappater.github.io/" target="_blank" style="color:#888; text-decoration:underline;">More by pappater</a>
-          <br>
-          <small>Track your year, month, week, and day progress. Built with ❤️ by <a href="https://github.com/pappater" target="_blank" style="color:#888; text-decoration:underline;">pappater</a>.</small>
-        </span>
+          <a href="https://pappater.github.io/" target="_blank"
+            >More by pappater</a
+          >
+          <br />
+          <small
+            >Track your year, month, week, and day progress. Built with ❤️ by
+            <a href="https://github.com/pappater" target="_blank">pappater</a
+            >.</small
+          >
+        </div>
       </footer>
     </div>
     <script type="module" src="ui.js"></script>

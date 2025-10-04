@@ -1,3 +1,54 @@
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.7rem;
+}
+.app-logo {
+  font-size: 2.3rem;
+  margin-bottom: 0.2rem;
+  user-select: none;
+}
+.app-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #00cec9;
+  letter-spacing: 1.2px;
+  margin: 0 0 0.2rem 0;
+  text-shadow: 0 2px 8px #00cec922, 0 1px 4px #23272f22;
+}
+.app-subtitle {
+  font-size: 1.08rem;
+  color: #b2bec3;
+  margin-bottom: 0.2rem;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+footer {
+  text-align: center;
+  color: #b2bec3;
+  font-size: 0.98em;
+  margin: 32px 0 8px 0;
+  padding-top: 1.2em;
+  border-top: 1px solid #23272f;
+}
+footer a {
+  color: #00cec9;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+footer a:hover {
+  color: #00b894;
+}
+footer #daily-quote {
+  margin-bottom: 1.1em;
+  font-style: italic;
+  color: #74b9ff;
+  font-size: 1.08em;
+}
+footer small {
+  color: #888;
+}
 .daily-quote {
     margin: 1.5rem auto 2.2rem auto;
     padding: 1.1rem 1.5rem 1.1rem 1.2rem;
@@ -111,15 +162,20 @@
     font-weight: 500;
 }
 .milestone-marker {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 2px;
-    background: #fdcb6e;
-    z-index: 2;
-    border-radius: 2px;
-    cursor: pointer;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: #fdcb6e;
+  z-index: 2;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
+
+
 .milestone-marker-label {
     position: absolute;
     left: 50%;

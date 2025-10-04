@@ -38,7 +38,7 @@ export function logoutGitHub() {
   } catch {}
   try {
     // If imported milestones variable exists
-    if (typeof milestones !== 'undefined' && Array.isArray(milestones)) {
+    if (typeof milestones !== "undefined" && Array.isArray(milestones)) {
       milestones.length = 0;
     }
   } catch {}
