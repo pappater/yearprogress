@@ -1,3 +1,47 @@
+#download-image {
+    background: #0984e3;
+    color: #fff;
+}
+#download-image:hover {
+    background: #74b9ff;
+    color: #23272f;
+}
+.share-section {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+#copy-progress, #share-image, #download-image {
+    background: #00cec9;
+    color: #23272f;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 1.1rem;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#copy-progress:hover, #share-image:hover, #download-image:hover {
+    background: #00b894;
+    color: #fff;
+}
+}
+#copy-progress, #share-image {
+    background: #00cec9;
+    color: #23272f;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 1.1rem;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#copy-progress:hover, #share-image:hover {
+    background: #00b894;
+}
 #progress-bar-bg-year {
     width: 600px;
     max-width: 98vw;

@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Year Progress</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Year Progress</h1>
+        <div class="share-section">
+            <button id="copy-progress">Copy Progress as Text</button>
+            <button id="share-image">Share as Image</button>
+            <button id="download-image">Download as Image</button>
+        </div>
         <div class="milestone-section">
             <label>Add Milestone</label>
             <input type="date" id="milestone-date" />
