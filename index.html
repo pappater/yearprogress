@@ -1,78 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Year Progress</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="user-bar">
-        <button id="login-github">Login with GitHub</button>
-        <span id="user-info" style="display:none;"></span>
-        <button id="logout-github" style="display:none;">Logout</button>
+      <button id="login-github">Login with GitHub</button>
+      <span id="user-info" style="display: none"></span>
+      <button id="logout-github" style="display: none">Logout</button>
     </div>
     <div class="container">
-        <h1>Year Progress</h1>
-        <div class="share-section">
-            <button id="copy-progress">Copy Progress as Text</button>
-            <button id="share-image">Share as Image</button>
-            <button id="download-image">Download as Image</button>
+  <h1>Year Progress</h1>
+  <div id="daily-quote" class="daily-quote"></div>
+      <div class="share-section">
+        <button id="copy-progress">Copy Progress as Text</button>
+        <button id="share-image">Share as Image</button>
+        <button id="download-image">Download as Image</button>
+      </div>
+      <div class="milestone-section">
+        <label>Add Milestone</label>
+        <input type="date" id="milestone-date" />
+        <input
+          type="text"
+          id="milestone-label"
+          placeholder="Label (optional)"
+          maxlength="20"
+        />
+        <button id="add-milestone">Add</button>
+      </div>
+      <div class="progress-section">
+        <label>Year</label>
+        <div class="progress-bar-background" id="progress-bar-bg-year">
+          <div class="progress-bar-fill" id="progress-bar-year"></div>
         </div>
-        <div class="milestone-section">
-            <label>Add Milestone</label>
-            <input type="date" id="milestone-date" />
-            <input type="text" id="milestone-label" placeholder="Label (optional)" maxlength="20" />
-            <button id="add-milestone">Add</button>
+        <div class="progress-text" id="progress-text-year"></div>
+        <div class="milestone-info" id="milestone-info-year"></div>
+      </div>
+      <div class="progress-section">
+        <label>Month</label>
+        <div class="progress-bar-background" id="progress-bar-bg-month">
+          <div class="progress-bar-fill" id="progress-bar-month"></div>
         </div>
-        <div class="progress-section">
-            <label>Year</label>
-            <div class="progress-bar-background" id="progress-bar-bg-year">
-                <div class="progress-bar-fill" id="progress-bar-year"></div>
-            </div>
-            <div class="progress-text" id="progress-text-year"></div>
-            <div class="milestone-info" id="milestone-info-year"></div>
+        <div class="progress-text" id="progress-text-month"></div>
+        <div class="milestone-info" id="milestone-info-month"></div>
+      </div>
+      <div class="progress-section">
+        <label>Week</label>
+        <div class="progress-bar-background" id="progress-bar-bg-week">
+          <div class="progress-bar-fill" id="progress-bar-week"></div>
         </div>
-        <div class="progress-section">
-            <label>Month</label>
-            <div class="progress-bar-background" id="progress-bar-bg-month">
-                <div class="progress-bar-fill" id="progress-bar-month"></div>
-            </div>
-            <div class="progress-text" id="progress-text-month"></div>
-            <div class="milestone-info" id="milestone-info-month"></div>
+        <div class="progress-text" id="progress-text-week"></div>
+        <div class="milestone-info" id="milestone-info-week"></div>
+      </div>
+      <div class="progress-section">
+        <label>Day</label>
+        <div class="progress-bar-background" id="progress-bar-bg-day">
+          <div class="progress-bar-fill" id="progress-bar-day"></div>
         </div>
-        <div class="progress-section">
-            <label>Week</label>
-            <div class="progress-bar-background" id="progress-bar-bg-week">
-                <div class="progress-bar-fill" id="progress-bar-week"></div>
-            </div>
-            <div class="progress-text" id="progress-text-week"></div>
-            <div class="milestone-info" id="milestone-info-week"></div>
+        <div class="progress-text" id="progress-text-day"></div>
+        <div class="milestone-info" id="milestone-info-day"></div>
+      </div>
+      <div class="progress-section">
+        <label>Custom Range</label>
+        <div class="custom-range-inputs">
+          <input type="date" id="custom-start" />
+          <span style="color: #b2bec3">to</span>
+          <input type="date" id="custom-end" />
         </div>
-        <div class="progress-section">
-            <label>Day</label>
-            <div class="progress-bar-background" id="progress-bar-bg-day">
-                <div class="progress-bar-fill" id="progress-bar-day"></div>
-            </div>
-            <div class="progress-text" id="progress-text-day"></div>
-            <div class="milestone-info" id="milestone-info-day"></div>
+        <div class="progress-bar-background" id="progress-bar-bg-custom">
+          <div class="progress-bar-fill" id="progress-bar-custom"></div>
         </div>
-        <div class="progress-section">
-            <label>Custom Range</label>
-            <div class="custom-range-inputs">
-                <input type="date" id="custom-start" />
-                <span style="color:#b2bec3;">to</span>
-                <input type="date" id="custom-end" />
-            </div>
-            <div class="progress-bar-background" id="progress-bar-bg-custom">
-                <div class="progress-bar-fill" id="progress-bar-custom"></div>
-            </div>
-            <div class="progress-text" id="progress-text-custom"></div>
-            <div class="milestone-info" id="milestone-info-custom"></div>
-        </div>
-        <p class="date-info" id="date-info"></p>
+        <div class="progress-text" id="progress-text-custom"></div>
+        <div class="milestone-info" id="milestone-info-custom"></div>
+      </div>
+      <p class="date-info" id="date-info"></p>
     </div>
     <script type="module" src="ui.js"></script>
-</body>
+  </body>
 </html>

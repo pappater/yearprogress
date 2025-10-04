@@ -1,19 +1,28 @@
 // --- Auth logic moved to auth.js ---
 
-import { githubUser, githubToken, showUser, exchangeCodeForToken, fetchGitHubUser, persistAuthToStorage, restoreAuthFromStorage } from './auth.js';
+import {
+  githubUser,
+  githubToken,
+  showUser,
+  exchangeCodeForToken,
+  fetchGitHubUser,
+  persistAuthToStorage,
+  restoreAuthFromStorage,
+} from "./auth.js";
 
-
-import { resetGistId } from './gist.js';
+import { resetGistId } from "./gist.js";
 export function loginWithGitHub() {
   const redirectUri = window.location.origin + window.location.pathname;
-  const url = `https://github.com/login/oauth/authorize?client_id=Ov23liCf78W2lLVcJspO&scope=gist&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  const url = `https://github.com/login/oauth/authorize?client_id=Ov23liCf78W2lLVcJspO&scope=gist&redirect_uri=${encodeURIComponent(
+    redirectUri
+  )}`;
   resetGistId();
   window.location.href = url;
 }
 
 export function logoutGitHub() {
-  localStorage.removeItem('githubToken');
-  localStorage.removeItem('githubUser');
+  localStorage.removeItem("githubToken");
+  localStorage.removeItem("githubUser");
   showUser(null);
   loadMilestones().then(updateUI);
 }
@@ -38,7 +47,12 @@ async function handleOAuthRedirect() {
 }
 // ...existing code...
 // --- Gist and milestone logic moved to gist.js and milestones.js ---
-import { milestones, loadMilestones, saveMilestones, addMilestone } from './milestones.js';
+import {
+  milestones,
+  loadMilestones,
+  saveMilestones,
+  addMilestone,
+} from "./milestones.js";
 // ...existing code...
 
 // (Removed duplicate non-async milestone functions)
@@ -112,8 +126,7 @@ function getCustomRangeProgress(startDate, endDate, now = new Date()) {
   return (elapsed / total) * 100;
 }
 
-
-import { updateUI, setupEventListeners } from './ui_render.js';
+import { updateUI, setupEventListeners } from "./ui_render.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Restore session if available

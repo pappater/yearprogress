@@ -1,10 +1,24 @@
 // ui_render.js - UI rendering and event listeners
-import { milestones, addMilestone, loadMilestones } from './milestones.js';
-import { githubUser, showUser } from './auth.js';
-import { loginWithGitHub, logoutGitHub } from './ui.js';
+import { milestones, addMilestone, loadMilestones } from "./milestones.js";
+import { githubUser, showUser } from "./auth.js";
+import { loginWithGitHub, logoutGitHub } from "./ui.js";
+import { QUOTES } from "./quotes.js";
+
+function showDailyQuote(date) {
+  const el = document.getElementById("daily-quote");
+  if (!el) return;
+  // Use day of year as index for quote
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const quote = QUOTES[dayOfYear % QUOTES.length];
+  el.textContent = quote;
+}
 
 export function updateUI() {
   const now = new Date();
+  // Show daily quote
+  showDailyQuote(now);
   // Year
   const yearPercent = getYearProgress(now);
   document.getElementById("progress-bar-year").style.width =
@@ -180,8 +194,12 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
 }
 
 export function setupEventListeners() {
-  document.getElementById("login-github").addEventListener("click", loginWithGitHub);
-  document.getElementById("logout-github").addEventListener("click", logoutGitHub);
+  document
+    .getElementById("login-github")
+    .addEventListener("click", loginWithGitHub);
+  document
+    .getElementById("logout-github")
+    .addEventListener("click", logoutGitHub);
   // Add Milestone button
   const addBtn = document.getElementById("add-milestone");
   const dateInput = document.getElementById("milestone-date");

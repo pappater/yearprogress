@@ -1,18 +1,18 @@
 // milestones.js - Milestone logic and localStorage fallback
-import { loadMilestonesFromGist, saveMilestonesToGist } from './gist.js';
+import { loadMilestonesFromGist, saveMilestonesToGist } from "./gist.js";
 
 export let milestones = [];
 
 export function saveMilestonesLocal() {
-  localStorage.setItem('milestones', JSON.stringify(milestones));
+  localStorage.setItem("milestones", JSON.stringify(milestones));
 }
 export function loadMilestonesLocal() {
-  const data = localStorage.getItem('milestones');
+  const data = localStorage.getItem("milestones");
   if (data) milestones = JSON.parse(data);
 }
 
 function getCurrentToken() {
-  return localStorage.getItem('githubToken');
+  return localStorage.getItem("githubToken");
 }
 
 export async function loadMilestones() {
