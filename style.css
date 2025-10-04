@@ -1,3 +1,9 @@
+#progress-bar-bg-year {
+    width: 600px;
+    max-width: 98vw;
+    margin-left: auto;
+    margin-right: auto;
+}
 .milestone-marker.selected {
     background: #fdcb6e;
     box-shadow: 0 0 0 3px #fdcb6e44;
@@ -110,7 +116,7 @@ body {
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.2);
     text-align: center;
-    width: 350px;
+    width: 600px;
 }
 
 h1 {
