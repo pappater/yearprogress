@@ -1,3 +1,14 @@
+function getCustomRangeProgress(startDate, endDate, now = new Date()) {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end) || end <= start) return 0;
+    if (now < start) return 0;
+    if (now > end) return 100;
+    const elapsed = now - start;
+    const total = end - start;
+    return (elapsed / total) * 100;
+}
 // ui.js - Year Progress UI logic
 
 function getYearProgress(date = new Date()) {
@@ -39,6 +50,7 @@ function getDayProgress(date = new Date()) {
 }
 
 
+
 function updateUI() {
     const now = new Date();
     // Year
@@ -57,6 +69,14 @@ function updateUI() {
     const dayPercent = getDayProgress(now);
     document.getElementById('progress-bar-day').style.width = dayPercent.toFixed(6) + '%';
     document.getElementById('progress-text-day').textContent = dayPercent.toFixed(6) + '% of 100%';
+    // Custom Range
+    const startInput = document.getElementById('custom-start');
+    const endInput = document.getElementById('custom-end');
+    if (startInput && endInput) {
+        const customPercent = getCustomRangeProgress(startInput.value, endInput.value, now);
+        document.getElementById('progress-bar-custom').style.width = customPercent.toFixed(6) + '%';
+        document.getElementById('progress-text-custom').textContent = customPercent > 0 ? customPercent.toFixed(6) + '% of 100%' : 'Enter valid dates';
+    }
     // Date info
     document.getElementById('date-info').textContent = `Today: ${now.toLocaleDateString()} | Day ${Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000*60*60*24))} of ${now.getFullYear()}`;
 }
@@ -64,4 +84,11 @@ function updateUI() {
 document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     setInterval(updateUI, 1000);
+    // Listen for custom range input changes
+    const startInput = document.getElementById('custom-start');
+    const endInput = document.getElementById('custom-end');
+    if (startInput && endInput) {
+        startInput.addEventListener('input', updateUI);
+        endInput.addEventListener('input', updateUI);
+    }
 });
