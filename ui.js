@@ -32,6 +32,9 @@ function loginWithGitHub() {
 function logoutGitHub() {
   githubUser = null;
   githubToken = null;
+  localStorage.removeItem('githubToken');
+  localStorage.removeItem('githubUser');
+  gistId = null;
   showUser(null);
   // Optionally clear milestones from UI or reload local milestones
 }
@@ -63,6 +66,9 @@ async function handleOAuthRedirect() {
       githubToken = await exchangeCodeForToken(code);
       githubUser = await fetchGitHubUser(githubToken);
       showUser(githubUser);
+      // Persist token and user
+      localStorage.setItem('githubToken', githubToken);
+      localStorage.setItem('githubUser', JSON.stringify(githubUser));
       console.log('GitHub token set:', githubToken);
       gistId = null; // reset gistId on new login
       await loadMilestones();
@@ -72,18 +78,6 @@ async function handleOAuthRedirect() {
     } catch (e) {
       alert("GitHub login failed: " + e.message);
     }
-  }
-}
-function downloadProgressImage() {
-  if (window.html2canvas) {
-    html2canvas(document.querySelector(".container")).then((canvas) => {
-      const link = document.createElement("a");
-      link.download = "progress.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
-  } else {
-    alert("Image download requires html2canvas.");
   }
 }
 // Copy/share logic
@@ -446,6 +440,13 @@ function updateUI() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Restore GitHub token and user from localStorage on page load
+  githubToken = localStorage.getItem('githubToken');
+  const userStr = localStorage.getItem('githubUser');
+  if (githubToken && userStr) {
+    githubUser = JSON.parse(userStr);
+    showUser(githubUser);
+  }
   handleOAuthRedirect();
   // GitHub login/logout
   document
