@@ -1,5 +1,6 @@
 // --- Auth logic moved to auth.js ---
-import { githubUser, githubToken, showUser, exchangeCodeForToken, fetchGitHubUser, persistAuthToStorage } from './auth.js';
+
+import { githubUser, githubToken, showUser, exchangeCodeForToken, fetchGitHubUser, persistAuthToStorage, restoreAuthFromStorage } from './auth.js';
 
 
 import { resetGistId } from './gist.js';
@@ -156,8 +157,17 @@ function getCustomRangeProgress(startDate, endDate, now = new Date()) {
 import { updateUI, setupEventListeners } from './ui_render.js';
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Restore session if available
+  const restoredUser = restoreAuthFromStorage();
+  if (restoredUser) {
+    showUser(restoredUser);
+    loadMilestones().then(updateUI);
+  }
   handleOAuthRedirect();
   setupEventListeners();
 });
 
-loadMilestones().then(updateUI);
+// Only call loadMilestones if not already called above
+if (!githubUser) {
+  loadMilestones().then(updateUI);
+}
