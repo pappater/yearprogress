@@ -196,9 +196,71 @@ export function setupEventListeners() {
       }
     });
   }
-  // ...other event listeners and UI setup...
+
+  // Copy/Share/Download Progress
+  const copyBtn = document.getElementById("copy-progress");
+  if (copyBtn) copyBtn.addEventListener("click", copyProgressText);
+  const shareBtn = document.getElementById("share-image");
+  if (shareBtn) shareBtn.addEventListener("click", shareProgressImage);
+  const downloadBtn = document.getElementById("download-image");
+  if (downloadBtn) downloadBtn.addEventListener("click", downloadProgressImage);
+
   loadMilestones().then(updateUI);
   setInterval(updateUI, 1000);
+}
+
+// --- Copy/share/download logic ---
+function getProgressText() {
+  const year = document.getElementById("progress-text-year").textContent;
+  const month = document.getElementById("progress-text-month").textContent;
+  const week = document.getElementById("progress-text-week").textContent;
+  const day = document.getElementById("progress-text-day").textContent;
+  const custom = document.getElementById("progress-text-custom").textContent;
+  const today = document.getElementById("date-info").textContent;
+  return `Year Progress: ${year}\nMonth Progress: ${month}\nWeek Progress: ${week}\nDay Progress: ${day}\nCustom Range: ${custom}\n${today}`;
+}
+
+function copyProgressText() {
+  const text = getProgressText();
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Progress copied to clipboard!");
+  });
+}
+
+function shareProgressImage() {
+  if (window.html2canvas) {
+    html2canvas(document.querySelector(".container")).then((canvas) => {
+      if (navigator.share) {
+        canvas.toBlob((blob) => {
+          const file = new File([blob], "progress.png", { type: "image/png" });
+          navigator.share({
+            files: [file],
+            title: "My Progress",
+            text: "Check out my progress!",
+          });
+        });
+      } else {
+        // fallback: open image in new tab
+        const url = canvas.toDataURL("image/png");
+        window.open(url, "_blank");
+      }
+    });
+  } else {
+    alert("Image sharing requires html2canvas.");
+  }
+}
+
+function downloadProgressImage() {
+  if (window.html2canvas) {
+    html2canvas(document.querySelector(".container")).then((canvas) => {
+      const link = document.createElement("a");
+      link.download = "progress.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  } else {
+    alert("Image download requires html2canvas.");
+  }
 }
 
 // Export any other UI helpers as needed

@@ -3,7 +3,10 @@
     justify-content: flex-end;
     align-items: center;
     gap: 1rem;
-    margin: 1rem 2rem 0 0;
+    position: absolute;
+    top: 1.2rem;
+    right: 2.5rem;
+    z-index: 100;
 }
 #login-github, #logout-github {
     background: #24292f;
@@ -21,8 +24,13 @@
 }
 #user-info {
     font-size: 1rem;
-    color: #23272f;
-    font-weight: 500;
+    color: #00cec9;
+    font-weight: 600;
+    background: #181c20;
+    padding: 0.2rem 0.7rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px #23272f44;
+    letter-spacing: 0.5px;
 }
 #download-image {
     background: #0984e3;
@@ -178,6 +186,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 .container {
@@ -187,6 +196,7 @@ body {
     box-shadow: 0 4px 24px rgba(0,0,0,0.2);
     text-align: center;
     width: 600px;
+    margin-top: 4.5rem;
 }
 
 h1 {
