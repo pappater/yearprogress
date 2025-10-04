@@ -1,85 +1,41 @@
-// --- GitHub OAuth + Gist logic ---
-let githubUser = null;
-let githubToken = null;
-const GITHUB_CLIENT_ID = "Ov23liCf78W2lLVcJspO"; // Replace with your actual client ID
-const OAUTH_BACKEND = "http://127.0.0.1:3001"; // Backend URL
+// --- Auth logic moved to auth.js ---
+import { githubUser, githubToken, showUser, exchangeCodeForToken, fetchGitHubUser, persistAuthToStorage } from './auth.js';
 
-function showUser(user) {
-  const info = document.getElementById("user-info");
-  const loginBtn = document.getElementById("login-github");
-  const logoutBtn = document.getElementById("logout-github");
-  if (user) {
-    info.textContent = `Logged in as ${user.login}`;
-    info.style.display = "";
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "";
-  } else {
-    info.textContent = "";
-    info.style.display = "none";
-    loginBtn.style.display = "";
-    logoutBtn.style.display = "none";
-  }
-}
 
-function loginWithGitHub() {
+import { resetGistId } from './gist.js';
+export function loginWithGitHub() {
   const redirectUri = window.location.origin + window.location.pathname;
-  const url = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=gist&redirect_uri=${encodeURIComponent(
-    redirectUri
-  )}`;
+  const url = `https://github.com/login/oauth/authorize?client_id=Ov23liCf78W2lLVcJspO&scope=gist&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  resetGistId();
   window.location.href = url;
 }
 
-function logoutGitHub() {
-  githubUser = null;
-  githubToken = null;
+export function logoutGitHub() {
   localStorage.removeItem('githubToken');
   localStorage.removeItem('githubUser');
-  gistId = null;
   showUser(null);
-  // Optionally clear milestones from UI or reload local milestones
+  loadMilestones().then(updateUI);
 }
 
-async function exchangeCodeForToken(code) {
-  const res = await fetch(`${OAUTH_BACKEND}/auth/github/callback`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code }),
-  });
-  if (!res.ok) throw new Error("OAuth exchange failed");
-  const data = await res.json();
-  return data.access_token;
-}
-
-async function fetchGitHubUser(token) {
-  const res = await fetch("https://api.github.com/user", {
-    headers: { Authorization: `token ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to fetch user");
-  return await res.json();
-}
-
+// Move handleOAuthRedirect back to ui.js since it's not in auth.js
 async function handleOAuthRedirect() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get("code");
   if (code) {
     try {
-      githubToken = await exchangeCodeForToken(code);
-      githubUser = await fetchGitHubUser(githubToken);
-      showUser(githubUser);
-      // Persist token and user
-      localStorage.setItem('githubToken', githubToken);
-      localStorage.setItem('githubUser', JSON.stringify(githubUser));
-      console.log('GitHub token set:', githubToken);
-      gistId = null; // reset gistId on new login
+      const token = await exchangeCodeForToken(code, "http://127.0.0.1:3001");
+      const user = await fetchGitHubUser(token);
+      persistAuthToStorage(token, user);
+      showUser(user);
       await loadMilestones();
       updateUI();
-      // Remove code from URL
       window.history.replaceState({}, document.title, window.location.pathname);
     } catch (e) {
       alert("GitHub login failed: " + e.message);
     }
   }
 }
+// ...existing code...
 // Copy/share logic
 function getProgressText() {
   const year = document.getElementById("progress-text-year").textContent;
@@ -121,120 +77,9 @@ function shareProgressImage() {
     alert("Image sharing requires html2canvas.");
   }
 }
-// Milestone storage (in-memory for now)
-let milestones = [];
-// Track selected milestone index for each bar
-const selectedMilestone = {
-  year: null,
-  month: null,
-  week: null,
-  day: null,
-  custom: null,
-};
-
-let gistId = null;
-const GIST_FILENAME = "yearprogress-milestones.json";
-
-function saveMilestonesLocal() {
-  localStorage.setItem("milestones", JSON.stringify(milestones));
-}
-function loadMilestonesLocal() {
-  const data = localStorage.getItem("milestones");
-  if (data) milestones = JSON.parse(data);
-}
-
-async function findOrCreateMilestoneGist(token) {
-  // 1. Try to find an existing Gist
-  const res = await fetch("https://api.github.com/gists", {
-    headers: { Authorization: `token ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to list gists");
-  const gists = await res.json();
-  let gist = gists.find((g) => g.files && g.files[GIST_FILENAME]);
-  if (gist) {
-    console.log("Using existing Gist ID:", gist.id);
-    return gist.id;
-  }
-  // 2. Create a new Gist
-  const createRes = await fetch("https://api.github.com/gists", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `token ${token}`,
-    },
-    body: JSON.stringify({
-      description: "Year Progress Milestones",
-      public: false,
-      files: {
-        [GIST_FILENAME]: { content: "[]" },
-      },
-    }),
-  });
-  if (!createRes.ok) throw new Error("Failed to create gist");
-  const newGist = await createRes.json();
-  console.log("Created new Gist ID:", newGist.id);
-  return newGist.id;
-}
-
-async function loadMilestonesFromGist() {
-  if (!githubToken) return loadMilestonesLocal();
-  if (!gistId) gistId = await findOrCreateMilestoneGist(githubToken);
-  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-    headers: { Authorization: `token ${githubToken}` },
-  });
-  if (!res.ok) {
-    console.error('Failed to load gist:', res.status, await res.text());
-    throw new Error("Failed to load gist");
-  }
-  const gist = await res.json();
-  const file = gist.files[GIST_FILENAME];
-  if (file && file.content) {
-    try {
-      milestones = JSON.parse(file.content);
-      console.log('Loaded milestones from Gist:', milestones);
-    } catch {
-      milestones = [];
-    }
-  } else {
-    milestones = [];
-  }
-  saveMilestonesLocal(); // keep localStorage in sync
-}
-
-async function saveMilestonesToGist() {
-  if (!githubToken) return saveMilestonesLocal();
-  if (!gistId) gistId = await findOrCreateMilestoneGist(githubToken);
-  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `token ${githubToken}`,
-    },
-    body: JSON.stringify({
-      files: {
-        [GIST_FILENAME]: { content: JSON.stringify(milestones, null, 2) },
-      },
-    }),
-  });
-  if (!res.ok) throw new Error("Failed to save milestones to gist");
-  saveMilestonesLocal(); // keep localStorage in sync
-}
-
-async function saveMilestones() {
-  if (githubToken) {
-    await saveMilestonesToGist();
-  } else {
-    saveMilestonesLocal();
-  }
-}
-
-async function loadMilestones() {
-  if (githubToken) {
-    await loadMilestonesFromGist();
-  } else {
-    loadMilestonesLocal();
-  }
-}
+// --- Gist and milestone logic moved to gist.js and milestones.js ---
+import { milestones, loadMilestones, saveMilestones, addMilestone } from './milestones.js';
+// ...existing code...
 
 // (Removed duplicate non-async milestone functions)
 function clearMilestoneMarkers(barId) {
@@ -307,191 +152,12 @@ function getCustomRangeProgress(startDate, endDate, now = new Date()) {
   return (elapsed / total) * 100;
 }
 
-// ui.js - Year Progress UI logic
 
-function getYearProgress(date = new Date()) {
-  const start = new Date(date.getFullYear(), 0, 1);
-  const end = new Date(date.getFullYear() + 1, 0, 1);
-  const elapsed = date - start;
-  const total = end - start;
-  return (elapsed / total) * 100;
-}
-
-function getMonthProgress(date = new Date()) {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-  const elapsed = date - start;
-  const total = end - start;
-  return (elapsed / total) * 100;
-}
-function getWeekProgress(date = new Date()) {
-  // Week starts on Sunday
-  const start = new Date(date);
-  start.setDate(date.getDate() - date.getDay());
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 7);
-  const elapsed = date - start;
-  const total = end - start;
-  return (elapsed / total) * 100;
-}
-
-function getDayProgress(date = new Date()) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(24, 0, 0, 0);
-  const elapsed = date - start;
-  const total = end - start;
-  return (elapsed / total) * 100;
-}
-
-function updateUI() {
-  const now = new Date();
-  // Year
-  const yearPercent = getYearProgress(now);
-  document.getElementById("progress-bar-year").style.width =
-    yearPercent.toFixed(6) + "%";
-  document.getElementById("progress-text-year").textContent =
-    yearPercent.toFixed(6) + "% of 100%";
-  renderMilestoneMarkers(
-    "progress-bar-bg-year",
-    new Date(now.getFullYear(), 0, 1),
-    new Date(now.getFullYear() + 1, 0, 1),
-    "milestone-info-year"
-  );
-  // Month
-  const monthPercent = getMonthProgress(now);
-  document.getElementById("progress-bar-month").style.width =
-    monthPercent.toFixed(6) + "%";
-  document.getElementById("progress-text-month").textContent =
-    monthPercent.toFixed(6) + "% of 100%";
-  renderMilestoneMarkers(
-    "progress-bar-bg-month",
-    new Date(now.getFullYear(), now.getMonth(), 1),
-    new Date(now.getFullYear(), now.getMonth() + 1, 1),
-    "milestone-info-month"
-  );
-  // Week
-  const weekPercent = getWeekProgress(now);
-  document.getElementById("progress-bar-week").style.width =
-    weekPercent.toFixed(6) + "%";
-  document.getElementById("progress-text-week").textContent =
-    weekPercent.toFixed(6) + "% of 100%";
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  weekStart.setHours(0, 0, 0, 0);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 7);
-  renderMilestoneMarkers(
-    "progress-bar-bg-week",
-    weekStart,
-    weekEnd,
-    "milestone-info-week"
-  );
-  // Day
-  const dayPercent = getDayProgress(now);
-  document.getElementById("progress-bar-day").style.width =
-    dayPercent.toFixed(6) + "%";
-  document.getElementById("progress-text-day").textContent =
-    dayPercent.toFixed(6) + "% of 100%";
-  const dayStart = new Date(now);
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(now);
-  dayEnd.setHours(24, 0, 0, 0);
-  renderMilestoneMarkers(
-    "progress-bar-bg-day",
-    dayStart,
-    dayEnd,
-    "milestone-info-day"
-  );
-  // Custom Range
-  const startInput = document.getElementById("custom-start");
-  const endInput = document.getElementById("custom-end");
-  if (startInput && endInput) {
-    const customPercent = getCustomRangeProgress(
-      startInput.value,
-      endInput.value,
-      now
-    );
-    document.getElementById("progress-bar-custom").style.width =
-      customPercent.toFixed(6) + "%";
-    document.getElementById("progress-text-custom").textContent =
-      customPercent > 0
-        ? customPercent.toFixed(6) + "% of 100%"
-        : "Enter valid dates";
-    if (startInput.value && endInput.value) {
-      renderMilestoneMarkers(
-        "progress-bar-bg-custom",
-        new Date(startInput.value),
-        new Date(endInput.value),
-        "milestone-info-custom"
-      );
-    } else {
-      clearMilestoneMarkers("progress-bar-bg-custom");
-    }
-  }
-  // Date info
-  document.getElementById(
-    "date-info"
-  ).textContent = `Today: ${now.toLocaleDateString()} | Day ${Math.floor(
-    (now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)
-  )} of ${now.getFullYear()}`;
-}
+import { updateUI, setupEventListeners } from './ui_render.js';
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Restore GitHub token and user from localStorage on page load
-  githubToken = localStorage.getItem('githubToken');
-  const userStr = localStorage.getItem('githubUser');
-  if (githubToken && userStr) {
-    githubUser = JSON.parse(userStr);
-    showUser(githubUser);
-  }
   handleOAuthRedirect();
-  // GitHub login/logout
-  document
-    .getElementById("login-github")
-    .addEventListener("click", loginWithGitHub);
-  document
-    .getElementById("logout-github")
-    .addEventListener("click", logoutGitHub);
-  const downloadBtn = document.getElementById("download-image");
-  if (downloadBtn) downloadBtn.addEventListener("click", downloadProgressImage);
-  // Share/copy buttons
-  const copyBtn = document.getElementById("copy-progress");
-  if (copyBtn) copyBtn.addEventListener("click", copyProgressText);
-  const shareBtn = document.getElementById("share-image");
-  if (shareBtn) shareBtn.addEventListener("click", shareProgressImage);
-  loadMilestones().then(updateUI);
-  setInterval(updateUI, 1000);
-  // Listen for custom range input changes
-  const startInput = document.getElementById("custom-start");
-  const endInput = document.getElementById("custom-end");
-  if (startInput && endInput) {
-    startInput.addEventListener("input", updateUI);
-    endInput.addEventListener("input", updateUI);
-  }
-  // Milestone add button
-  const addBtn = document.getElementById("add-milestone");
-  const dateInput = document.getElementById("milestone-date");
-  const labelInput = document.getElementById("milestone-label");
-  if (addBtn && dateInput) {
-    addBtn.addEventListener("click", async () => {
-      if (dateInput.value) {
-        await addMilestone(dateInput.value, labelInput.value);
-        dateInput.value = "";
-        labelInput.value = "";
-      }
-    });
-  }
+  setupEventListeners();
 });
-// Ensure addMilestone is globally defined
-async function addMilestone(date, label) {
-  if (!date) return;
-  milestones.push({ date, label });
-  await saveMilestones();
-  updateUI();
-}
 
-gistId = null;
 loadMilestones().then(updateUI);
