@@ -1,3 +1,29 @@
+#user-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 2rem 0 0;
+}
+#login-github, #logout-github {
+    background: #24292f;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 1.1rem;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#login-github:hover, #logout-github:hover {
+    background: #444c56;
+}
+#user-info {
+    font-size: 1rem;
+    color: #23272f;
+    font-weight: 500;
+}
 #download-image {
     background: #0984e3;
     color: #fff;

@@ -1,3 +1,73 @@
+// --- GitHub OAuth + Gist logic ---
+let githubUser = null;
+let githubToken = null;
+const GITHUB_CLIENT_ID = 'Ov23liCf78W2lLVcJspO'; // Replace with your actual client ID
+const OAUTH_BACKEND = 'https://organic-adventure-59vp9wg6v937x9w-3001.app.github.dev'; // Backend URL
+
+function showUser(user) {
+    const info = document.getElementById('user-info');
+    const loginBtn = document.getElementById('login-github');
+    const logoutBtn = document.getElementById('logout-github');
+    if (user) {
+        info.textContent = `Logged in as ${user.login}`;
+        info.style.display = '';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = '';
+    } else {
+        info.textContent = '';
+        info.style.display = 'none';
+        loginBtn.style.display = '';
+        logoutBtn.style.display = 'none';
+    }
+}
+
+function loginWithGitHub() {
+    const redirectUri = window.location.origin + window.location.pathname;
+    const url = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=gist&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    window.location.href = url;
+}
+
+function logoutGitHub() {
+    githubUser = null;
+    githubToken = null;
+    showUser(null);
+    // Optionally clear milestones from UI or reload local milestones
+}
+
+async function exchangeCodeForToken(code) {
+    const res = await fetch(`${OAUTH_BACKEND}/auth/github/callback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+    });
+    if (!res.ok) throw new Error('OAuth exchange failed');
+    const data = await res.json();
+    return data.access_token;
+}
+
+async function fetchGitHubUser(token) {
+    const res = await fetch('https://api.github.com/user', {
+        headers: { Authorization: `token ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch user');
+    return await res.json();
+}
+
+async function handleOAuthRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+        try {
+            githubToken = await exchangeCodeForToken(code);
+            githubUser = await fetchGitHubUser(githubToken);
+            showUser(githubUser);
+            // Remove code from URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (e) {
+            alert('GitHub login failed: ' + e.message);
+        }
+    }
+}
 function downloadProgressImage() {
     if (window.html2canvas) {
         html2canvas(document.querySelector('.container')).then(canvas => {
@@ -220,6 +290,10 @@ function updateUI() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    handleOAuthRedirect();
+    // GitHub login/logout
+    document.getElementById('login-github').addEventListener('click', loginWithGitHub);
+    document.getElementById('logout-github').addEventListener('click', logoutGitHub);
     const downloadBtn = document.getElementById('download-image');
     if (downloadBtn) downloadBtn.addEventListener('click', downloadProgressImage);
     // Share/copy buttons
