@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predeploy": "cp index.html style.css ui.js dist/",
+    "deploy": "gh-pages -d dist"
   },
   "author": "pratheesh",
   "license": "ISC",
@@ -14,5 +16,9 @@
     "express": "^4.17.1",
     "later": "^1.2.0",
     "twit": "^2.2.11"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "live-server": "^1.2.2"
   }
 }
