@@ -505,23 +505,92 @@
         <div class="milestone-info" id="milestone-info-custom"></div>
       </div>
       <p class="date-info" id="date-info"></p>
-      <footer <footer style="text-align: center; margin: 32px 0 8px 0">
-        <div id="daily-quote"></div>
+      <div id="daily-quote" class="footer-quote-minimal"></div>
+      <style>
+        .footer-quote-minimal {
+          font-style: italic;
+          font-size: 1em;
+          color: #b2bec3;
+          margin-bottom: 1.1em;
+          margin-top: -0.5em;
+          padding-left: 1.2em;
+          padding-right: 1em;
+          min-height: 1.7em;
+          background: none;
+          display: inline-block;
+          position: relative;
+          letter-spacing: 0.01em;
+        }
+        .footer-quote-minimal:before {
+          content: "\201C";
+          font-size: 1.2em;
+          color: #636e72;
+          position: absolute;
+          left: 0.1em;
+          top: 0.1em;
+          opacity: 0.5;
+          font-family: serif;
+        }
+      </style>
+      <footer class="footer-enhanced">
+        <style>
+          .footer-enhanced {
+            text-align: center;
+            margin: 40px auto 16px auto;
+            background: #181c20cc;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px #00cec933, 0 0 0 2px #23272f;
+            padding: 2.2em 1.2em 1.2em 1.2em;
+            max-width: 600px;
+            font-size: 1.08em;
+            color: #b2bec3;
+            position: relative;
+            overflow: hidden;
+          }
+          .footer-enhanced .footer-gradient {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.1em;
+            background: linear-gradient(90deg, #00cec9, #ff7675, #ffeaa7, #6c5ce7, #fdcb6e, #00b894, #0984e3, #fd79a8, #00cec9);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: footer-gradient-move 8s ease-in-out infinite;
+            display: inline-block;
+            margin-bottom: 0.5em;
+          }
+          @keyframes footer-gradient-move {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          .footer-enhanced a {
+            color: #00cec9;
+            text-decoration: none;
+            transition: color 0.2s;
+          }
+          .footer-enhanced a:hover {
+            color: #ffeaa7;
+            text-decoration: underline;
+          }
+          .footer-enhanced small {
+            display: block;
+            margin-top: 0.7em;
+            color: #636e72;
+            font-size: 0.98em;
+          }
+        </style>
         <div>
-          Year Progress &copy; 2025 &mdash;
-          <a href="https://github.com/pappater/yearprogress" target="_blank"
-            >Source on GitHub</a
-          >
+          <span class="footer-gradient">Yearify &copy; 2025</span>
+          &mdash;
+          <a href="https://github.com/pappater/yearprogress" target="_blank">Source on GitHub</a>
           &nbsp;|&nbsp;
-          <a href="https://pappater.github.io/" target="_blank"
-            >More by pappater</a
-          >
+          <a href="https://pappater.github.io/" target="_blank">More by pappater</a>
           <br />
-          <small
-            >Track your year, month, week, and day progress. Built with ❤️ by
-            <a href="https://github.com/pappater" target="_blank">pappater</a
-            >.</small
-          >
+          <small>
+            Track your year, month, week, and day progress. Built with ❤️ by
+            <a href="https://github.com/pappater" target="_blank">pappater</a>.
+          </small>
         </div>
       </footer>
       <!-- Milestone Management Panel with Overlay -->
