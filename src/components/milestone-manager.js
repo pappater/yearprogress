@@ -5,8 +5,8 @@ import {
   findOrCreateMilestoneGist,
   loadMilestonesFromGist,
   saveMilestonesToGist,
-  GIST_FILENAME
-} from '../../gist.js';
+  GIST_FILENAME,
+} from "../../gist.js";
 
 export class MilestoneManager {
   constructor(authManager = null) {
@@ -14,7 +14,7 @@ export class MilestoneManager {
     this.milestones = [];
     this.isLoading = false;
     this.gistId = null;
-    
+
     this.addModal = document.getElementById("add-milestone-modal");
     this.addForm = document.getElementById("add-milestone-form");
     this.panel = document.getElementById("milestone-panel-overlay");
@@ -162,7 +162,7 @@ export class MilestoneManager {
       this.hideAddModal();
       this.showSuccess("Milestone added successfully!");
     } catch (error) {
-      console.error('Failed to add milestone:', error);
+      console.error("Failed to add milestone:", error);
       this.showError("Failed to add milestone. Please try again.");
     } finally {
       this.hideLoader();
@@ -199,7 +199,7 @@ export class MilestoneManager {
       this.updateMilestoneDisplay();
       this.showSuccess("Milestone deleted successfully!");
     } catch (error) {
-      console.error('Failed to delete milestone:', error);
+      console.error("Failed to delete milestone:", error);
       this.showError("Failed to delete milestone. Please try again.");
     } finally {
       this.hideLoader();
@@ -311,7 +311,7 @@ export class MilestoneManager {
     if (!this.panelContent) return;
 
     // Show auth benefits if not authenticated
-    let authSection = '';
+    let authSection = "";
     if (!this.authManager || !this.authManager.isAuthenticated()) {
       authSection = `
         <div class="auth-required">
@@ -427,7 +427,9 @@ export class MilestoneManager {
         // Fallback to localStorage
         const stored = localStorage.getItem("yearify-milestones");
         this.milestones = stored ? JSON.parse(stored) : [];
-        console.log(`Loaded ${this.milestones.length} milestones from localStorage`);
+        console.log(
+          `Loaded ${this.milestones.length} milestones from localStorage`
+        );
       }
     } catch (error) {
       console.error("Failed to load milestones:", error);
@@ -461,7 +463,9 @@ export class MilestoneManager {
           "yearify-milestones",
           JSON.stringify(this.milestones)
         );
-        console.log(`Saved ${this.milestones.length} milestones to localStorage`);
+        console.log(
+          `Saved ${this.milestones.length} milestones to localStorage`
+        );
       }
     } catch (error) {
       console.error("Failed to save milestones:", error);
@@ -492,7 +496,7 @@ export class MilestoneManager {
    * @param {string} message - Error message
    */
   showError(message) {
-    this.showNotification(message, 'error');
+    this.showNotification(message, "error");
   }
 
   /**
@@ -520,14 +524,16 @@ export class MilestoneManager {
     if (this.authManager && this.authManager.isAuthenticated()) {
       try {
         this.showLoader();
-        
+
         // Check if we have local milestones to migrate
         const localMilestones = localStorage.getItem("yearify-milestones");
-        if (localMilestones && localMilestones !== '[]') {
+        if (localMilestones && localMilestones !== "[]") {
           const parsed = JSON.parse(localMilestones);
           if (parsed.length > 0) {
             // Merge local milestones with Gist milestones
-            const gistMilestones = await loadMilestonesFromGist(this.authManager.getCurrentToken());
+            const gistMilestones = await loadMilestonesFromGist(
+              this.authManager.getCurrentToken()
+            );
             const combined = this.mergeMilestones(parsed, gistMilestones);
             this.milestones = combined;
             await this.saveMilestones();
@@ -542,10 +548,10 @@ export class MilestoneManager {
           // Just load from Gist
           await this.loadMilestones();
         }
-        
+
         this.updateMilestoneDisplay();
       } catch (error) {
-        console.error('Failed to sync milestones:', error);
+        console.error("Failed to sync milestones:", error);
         this.showError("Failed to sync milestones.");
       } finally {
         this.hideLoader();
@@ -556,24 +562,25 @@ export class MilestoneManager {
   /**
    * Merge local and gist milestones, avoiding duplicates
    * @param {Array} localMilestones - Local milestones
-   * @param {Array} gistMilestones - Gist milestones  
+   * @param {Array} gistMilestones - Gist milestones
    * @returns {Array} Merged milestones
    */
   mergeMilestones(localMilestones, gistMilestones) {
     const merged = [...gistMilestones];
-    
-    localMilestones.forEach(localMilestone => {
+
+    localMilestones.forEach((localMilestone) => {
       // Check if this milestone already exists in gist (by dateTime and label)
-      const exists = gistMilestones.some(gistMilestone => 
-        gistMilestone.dateTime === localMilestone.dateTime &&
-        gistMilestone.label === localMilestone.label
+      const exists = gistMilestones.some(
+        (gistMilestone) =>
+          gistMilestone.dateTime === localMilestone.dateTime &&
+          gistMilestone.label === localMilestone.label
       );
-      
+
       if (!exists) {
         merged.push(localMilestone);
       }
     });
-    
+
     return merged.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
   }
 

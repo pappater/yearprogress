@@ -6,6 +6,7 @@ import { ProgressTracker } from "./components/progress-tracker.js";
 import { MilestoneManager } from "./components/milestone-manager.js";
 import { UIControls } from "./components/ui-controls.js";
 import { AuthManager } from "./components/auth-manager.js";
+import { CustomRangeManager } from "./components/custom-range-manager.js";
 import { getDailyQuote } from "./data/quotes.js";
 
 class YearifyApp {
@@ -28,7 +29,18 @@ class YearifyApp {
       this.progressTracker = new ProgressTracker();
       this.authManager = new AuthManager();
       this.milestoneManager = new MilestoneManager(this.authManager);
+      this.customRangeManager = new CustomRangeManager(
+        this.progressTracker,
+        this.authManager
+      );
       this.uiControls = new UIControls(this.progressTracker);
+      
+      // Set up cross-references between components
+      this.progressTracker.setCustomRangeManager(this.customRangeManager);
+      
+      // Wait for custom range manager to fully initialize
+      // This ensures saved custom ranges are loaded before final progress update
+      await this.customRangeManager.init();
 
       // Setup auth state change listener for milestone sync
       this.setupAuthStateListener();
@@ -163,24 +175,30 @@ class YearifyApp {
    */
   setupAuthStateListener() {
     // Listen for successful login/logout to sync milestones
-    const originalPersistAuth = this.authManager.persistAuthToStorage.bind(this.authManager);
-    const originalClearAuth = this.authManager.clearAuthFromStorage.bind(this.authManager);
+    const originalPersistAuth = this.authManager.persistAuthToStorage.bind(
+      this.authManager
+    );
+    const originalClearAuth = this.authManager.clearAuthFromStorage.bind(
+      this.authManager
+    );
 
     this.authManager.persistAuthToStorage = (token, user) => {
       originalPersistAuth(token, user);
-      // Sync milestones after login
+      // Sync milestones and custom range after login
       setTimeout(() => {
         this.milestoneManager.syncMilestones();
+        this.customRangeManager.syncSettings();
       }, 500);
     };
 
     this.authManager.clearAuthFromStorage = () => {
       originalClearAuth();
-      // Reload milestones from localStorage after logout
+      // Reload milestones and custom range from localStorage after logout
       setTimeout(() => {
         this.milestoneManager.loadMilestones().then(() => {
           this.milestoneManager.updateMilestoneDisplay();
         });
+        this.customRangeManager.loadCustomRange();
       }, 100);
     };
   }

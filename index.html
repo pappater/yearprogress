@@ -387,13 +387,41 @@
           </div>
 
           <!-- Custom Range Progress Section -->
-          <div class="progress-section">
-            <label class="progress-label">Custom Range</label>
-            <div class="custom-range-inputs">
-              <input type="date" id="custom-start" />
-              <span class="range-separator">to</span>
-              <input type="date" id="custom-end" />
+          <div class="progress-section custom-range-section">
+            <div class="progress-label-container">
+              <label class="progress-label">Custom Range</label>
+              <button id="clear-custom-range" class="clear-range-btn" title="Clear custom range">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
+            
+            <div class="custom-range-inputs">
+              <div class="date-input-group">
+                <label for="custom-start" class="date-label">Start</label>
+                <input type="date" id="custom-start" class="custom-date-input" />
+              </div>
+              <div class="range-separator">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14m-7-7l7 7-7 7"/>
+                </svg>
+              </div>
+              <div class="date-input-group">
+                <label for="custom-end" class="date-label">End</label>
+                <input type="date" id="custom-end" class="custom-date-input" />
+              </div>
+            </div>
+
+            <div class="quick-presets">
+              <button class="preset-btn" data-preset="this-quarter">This Quarter</button>
+              <button class="preset-btn" data-preset="this-semester">This Semester</button>
+              <button class="preset-btn" data-preset="last-30-days">Last 30 Days</button>
+              <button class="preset-btn" data-preset="next-30-days">Next 30 Days</button>
+              <button class="preset-btn" data-preset="this-year-remaining">Year Remaining</button>
+            </div>
+            
             <div class="progress-bar-container">
               <div class="progress-bar-background" id="progress-bar-bg-custom">
                 <div class="progress-bar-fill" id="progress-bar-custom"></div>

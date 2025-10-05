@@ -15,6 +15,7 @@ export class ProgressTracker {
     this.customStartInput = document.getElementById("custom-start");
     this.customEndInput = document.getElementById("custom-end");
     this.dateInfoElement = document.getElementById("date-info");
+    this.customRangeManager = null;
 
     this.init();
   }
@@ -194,25 +195,13 @@ export class ProgressTracker {
   }
 
   /**
-   * Update date info display
+   * Update date information display
    */
   updateDateInfo() {
-    if (!this.dateInfoElement) return;
-
-    const { now } = this.dateInfo;
-    const dateString = now.toLocaleDateString(undefined, {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-    const timeString = now.toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    this.dateInfoElement.textContent = `${dateString} • ${timeString}`;
+    if (this.dateInfoElement) {
+      const { day, date, month, year } = this.dateInfo;
+      this.dateInfoElement.textContent = `${day}, ${date} ${month} ${year}`;
+    }
   }
 
   /**
@@ -280,5 +269,13 @@ export class ProgressTracker {
       this.customEndInput.value = endDate;
     }
     this.updateCustomProgress();
+  }
+
+  /**
+   * Set custom range manager reference
+   * @param {CustomRangeManager} customRangeManager - Reference to custom range manager
+   */
+  setCustomRangeManager(customRangeManager) {
+    this.customRangeManager = customRangeManager;
   }
 }

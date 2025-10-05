@@ -8,7 +8,7 @@ export const AUTH_CONFIG = {
   localhost: {
     clientId: "Ov23liCf78W2lLVcJspO",
     redirectUri: "http://localhost:5500/",
-    backendUrl: "http://localhost:3001",
+    backendUrl: "https://yearprogress-4s7k.onrender.com",
   },
 
   // GitHub Codespaces environment
