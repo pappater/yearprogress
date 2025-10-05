@@ -8,11 +8,25 @@ import {
 } from "./milestoneData.js";
 
 function openMilestonePanel() {
-  document.getElementById("milestone-panel").style.right = "0";
+  const overlay = document.getElementById("milestone-panel-overlay");
+  const panel = document.getElementById("milestone-panel");
+  overlay.style.display = "block";
+  setTimeout(() => {
+    panel.style.right = "0";
+  }, 10);
+  // Click outside panel closes it
+  overlay.onclick = function (e) {
+    if (e.target === overlay) closeMilestonePanel();
+  };
 }
 
 function closeMilestonePanel() {
-  document.getElementById("milestone-panel").style.right = "-400px";
+  const overlay = document.getElementById("milestone-panel-overlay");
+  const panel = document.getElementById("milestone-panel");
+  panel.style.right = "-400px";
+  setTimeout(() => {
+    overlay.style.display = "none";
+  }, 300);
 }
 
 async function renderMilestonePanel() {
@@ -23,21 +37,56 @@ async function renderMilestonePanel() {
     panel.innerHTML = '<div class="empty">No milestones yet.</div>';
     return;
   }
-  milestones.forEach((m) => {
-    const item = document.createElement("div");
-    item.className = "milestone-item";
-    item.innerHTML = `
-      <div class="milestone-label" style="color: ${
-        m.customization?.color || "#00cec9"
-      }">
-        <span>${m.label || "(No label)"}</span>
-        <span class="milestone-date">${m.date} ${m.time || ""}</span>
-      </div>
-      <button class="edit-btn" data-id="${m.id}">Edit</button>
-      <button class="delete-btn" data-id="${m.id}">Delete</button>
-    `;
-    panel.appendChild(item);
-  });
+  // Split milestones: today's at top, rest below
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todays = milestones.filter((m) => m.date === todayStr);
+  const rest = milestones.filter((m) => m.date !== todayStr);
+
+  function renderMilestoneList(list) {
+    list.forEach((m) => {
+      const item = document.createElement("div");
+      item.className = "milestone-item";
+      item.innerHTML = `
+        <div class="milestone-label" style="color: ${
+          m.customization?.color || "#00cec9"
+        }; display:flex; align-items:center; justify-content:space-between;">
+          <span>${m.customization?.icon || ""} ${m.label || "(No label)"}</span>
+          <span class="milestone-date" style="font-size:0.95em;color:#b2bec3;margin-left:8px;">${
+            m.date
+          } ${m.time || ""}</span>
+          <span class="milestone-actions" style="margin-left:12px;">
+            <button class="edit-btn" data-id="${
+              m.id
+            }" title="Edit" style="background:none;border:none;cursor:pointer;font-size:1.1em;">✏️</button>
+            <button class="delete-btn" data-id="${
+              m.id
+            }" title="Delete" style="background:none;border:none;cursor:pointer;font-size:1.1em;">🗑️</button>
+          </span>
+        </div>
+      `;
+      panel.appendChild(item);
+    });
+  }
+
+  if (todays.length > 0) {
+    const todayHeader = document.createElement("div");
+    todayHeader.textContent = "Today's Milestones";
+    todayHeader.style = "font-weight:bold;color:#00cec9;margin:8px 0 4px 0;";
+    panel.appendChild(todayHeader);
+    renderMilestoneList(todays);
+  }
+  if (rest.length > 0) {
+    if (todays.length > 0) {
+      const sep = document.createElement("div");
+      sep.style = "height:12px;";
+      panel.appendChild(sep);
+    }
+    const restHeader = document.createElement("div");
+    restHeader.textContent = "Other Milestones";
+    restHeader.style = "font-weight:bold;color:#b2bec3;margin:8px 0 4px 0;";
+    panel.appendChild(restHeader);
+    renderMilestoneList(rest);
+  }
   // Attach event listeners for edit/delete
   panel.querySelectorAll(".edit-btn").forEach((btn) => {
     btn.onclick = async (e) => {

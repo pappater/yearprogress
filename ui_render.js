@@ -208,7 +208,18 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
   const info = infoId ? document.getElementById(infoId) : null;
   if (info) info.textContent = "";
   milestones.forEach((m) => {
-    const d = new Date(m.date);
+    let d;
+    // For day bar, use both date and time for milestone position
+    if (barId === "progress-bar-bg-day" && m.time) {
+      // m.time is in HH:MM format
+      const [h, min] = m.time.split(":");
+      d = new Date(m.date);
+      if (!isNaN(h) && !isNaN(min)) {
+        d.setHours(Number(h), Number(min), 0, 0);
+      }
+    } else {
+      d = new Date(m.date);
+    }
     if (isNaN(d) || d < rangeStart || d > rangeEnd) return;
     const percent = ((d - rangeStart) / (rangeEnd - rangeStart)) * 100;
     const marker = document.createElement("div");
@@ -229,13 +240,17 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
       marker.classList.add("selected");
       if (info)
         info.textContent =
-          (m.label ? m.label + " - " : "") + d.toLocaleDateString();
+          (m.label ? m.label + " - " : "") +
+          d.toLocaleDateString() +
+          (m.time ? " " + m.time : "");
     }
     marker.addEventListener("click", (e) => {
       e.stopPropagation();
       if (info)
         info.textContent =
-          (m.label ? m.label + " - " : "") + d.toLocaleDateString();
+          (m.label ? m.label + " - " : "") +
+          d.toLocaleDateString() +
+          (m.time ? " " + m.time : "");
       bar
         .querySelectorAll(".milestone-marker.selected")
         .forEach((el) => el.classList.remove("selected"));
@@ -266,6 +281,8 @@ export function setupEventListeners() {
   if (showModalBtn && modal && form && cancelBtn) {
     showModalBtn.addEventListener("click", () => {
       modal.style.display = "flex";
+      modal.style.zIndex = 10001;
+      modal.focus && modal.focus();
     });
     cancelBtn.addEventListener("click", () => {
       modal.style.display = "none";
@@ -273,6 +290,7 @@ export function setupEventListeners() {
     });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      console.log("[Milestone Modal] Add button clicked");
       const date = document.getElementById("modal-milestone-date").value;
       const time = document.getElementById("modal-milestone-time").value;
       const label = document.getElementById("modal-milestone-label").value;
@@ -285,13 +303,24 @@ export function setupEventListeners() {
         label,
         customization: { color: color || "#00cec9", icon: icon || "" },
       };
-      const mod = await import("./milestoneData.js");
-      await mod.addMilestone(milestone);
-      modal.style.display = "none";
-      form.reset();
-      // Reload milestones and update UI
-      window.milestones = await mod.getMilestones();
-      updateUI();
+      try {
+        const mod = await import("./milestoneData.js");
+        await mod.addMilestone(milestone);
+        modal.style.display = "none";
+        form.reset();
+        // Reload milestones and update UI
+        window.milestones = await mod.getMilestones();
+        updateUI();
+        // If milestone panel is open, re-render it
+        const panel = document.getElementById("milestone-panel");
+        if (panel && panel.style.right === "0px") {
+          import("./milestonePanel.js").then((mod) =>
+            mod.renderMilestonePanel()
+          );
+        }
+      } catch (err) {
+        alert("Failed to add milestone: " + (err?.message || err));
+      }
     });
   }
   // Milestone panel open/close

@@ -222,45 +222,58 @@
           >
         </div>
       </footer>
-      <!-- Milestone Management Panel -->
+      <!-- Milestone Management Panel with Overlay -->
       <div
-        id="milestone-panel"
+        id="milestone-panel-overlay"
         style="
+          display: none;
           position: fixed;
           top: 0;
-          right: -400px;
-          width: 400px;
+          left: 0;
+          width: 100vw;
           height: 100vh;
-          background: #23272f;
-          box-shadow: -2px 0 16px #0008;
           z-index: 10000;
-          transition: right 0.3s;
-          overflow-y: auto;
+          background: rgba(0, 0, 0, 0.15);
         "
       >
         <div
+          id="milestone-panel"
           style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: #1e222a;
+            position: absolute;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: #23272f;
+            box-shadow: -2px 0 16px #0008;
+            transition: right 0.3s;
+            overflow-y: auto;
           "
         >
-          <span style="font-size: 1.2rem; color: #00cec9">Milestones</span>
-          <button
-            id="close-milestone-panel"
+          <div
             style="
-              background: none;
-              border: none;
-              font-size: 1.5rem;
-              color: #fff;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1rem;
+              background: #1e222a;
             "
           >
-            &times;
-          </button>
+            <span style="font-size: 1.2rem; color: #00cec9">Milestones</span>
+            <button
+              id="close-milestone-panel"
+              style="
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: #fff;
+              "
+            >
+              &times;
+            </button>
+          </div>
+          <div id="milestone-panel-content" style="padding: 1rem"></div>
         </div>
-        <div id="milestone-panel-content" style="padding: 1rem"></div>
       </div>
     </div>
     <script type="module" src="ui.js"></script>
