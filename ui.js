@@ -54,7 +54,10 @@ async function handleOAuthRedirect() {
   if (code) {
     showLoader(true);
     try {
-      const token = await exchangeCodeForToken(code, "http://127.0.0.1:3001");
+      const token = await exchangeCodeForToken(
+        code,
+        "https://yearprogress-4s7k.onrender.com"
+      );
       const user = await fetchGitHubUser(token);
       persistAuthToStorage(token, user);
       showUser(user);
