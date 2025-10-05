@@ -181,19 +181,6 @@
             <div id="hamburger-menu-dropdown" class="dropdown-menu">
               <button id="copy-progress" class="dropdown-item">Copy Progress</button>
               <button id="share-image" class="dropdown-item">Share as Image</button>
-                  border: none;
-                  text-align: left;
-                  color: #fff;
-                  cursor: pointer;
-                "
-              >
-                Share as Image
-              </button>
-              <button
-                id="download-image"
-                style="
-                  display: block;
-                  width: 100%;
               <button id="download-image" class="dropdown-item">Download Image</button>
             </div>
           </div>
@@ -441,56 +428,15 @@
     </div> <!-- End container -->
 
       <!-- Milestone Management Panel with Overlay -->
-      <div
-        id="milestone-panel-overlay"
-        style="
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          z-index: 10000;
-          background: rgba(0, 0, 0, 0.15);
-        "
-      >
-        <div
-          id="milestone-panel"
-          style="
-            position: absolute;
-            top: 0;
-            right: -400px;
-            width: 400px;
-            height: 100vh;
-            background: #23272f;
-            box-shadow: -2px 0 16px #0008;
-            transition: right 0.3s;
-            overflow-y: auto;
-          "
-        >
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding: 1rem;
-              background: #1e222a;
-            "
-          >
-            <span style="font-size: 1.2rem; color: #00cec9">Milestones</span>
-            <button
-              id="close-milestone-panel"
-              style="
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                color: #fff;
-              "
-            >
+      <div id="milestone-panel-overlay" class="panel-overlay">
+        <div id="milestone-panel" class="side-panel">
+          <div class="panel-header">
+            <span class="panel-title">Milestones</span>
+            <button id="close-milestone-panel" class="close-button">
               &times;
             </button>
           </div>
-          <div id="milestone-panel-content" style="padding: 1rem"></div>
+          <div id="milestone-panel-content" class="panel-content"></div>
         </div>
       </div>
     </div>

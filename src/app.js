@@ -26,9 +26,12 @@ class YearifyApp {
       // Initialize core components
       this.themeManager = new ThemeManager();
       this.progressTracker = new ProgressTracker();
-      this.milestoneManager = new MilestoneManager();
-      this.uiControls = new UIControls(this.progressTracker);
       this.authManager = new AuthManager();
+      this.milestoneManager = new MilestoneManager(this.authManager);
+      this.uiControls = new UIControls(this.progressTracker);
+
+      // Setup auth state change listener for milestone sync
+      this.setupAuthStateListener();
 
       // Setup additional features
       this.setupDailyQuote();
@@ -153,6 +156,33 @@ class YearifyApp {
         errorDiv.parentNode.removeChild(errorDiv);
       }
     }, 5000);
+  }
+
+  /**
+   * Setup authentication state change listener
+   */
+  setupAuthStateListener() {
+    // Listen for successful login/logout to sync milestones
+    const originalPersistAuth = this.authManager.persistAuthToStorage.bind(this.authManager);
+    const originalClearAuth = this.authManager.clearAuthFromStorage.bind(this.authManager);
+
+    this.authManager.persistAuthToStorage = (token, user) => {
+      originalPersistAuth(token, user);
+      // Sync milestones after login
+      setTimeout(() => {
+        this.milestoneManager.syncMilestones();
+      }, 500);
+    };
+
+    this.authManager.clearAuthFromStorage = () => {
+      originalClearAuth();
+      // Reload milestones from localStorage after logout
+      setTimeout(() => {
+        this.milestoneManager.loadMilestones().then(() => {
+          this.milestoneManager.updateMilestoneDisplay();
+        });
+      }, 100);
+    };
   }
 
   /**

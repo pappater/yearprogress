@@ -7,14 +7,14 @@ export const AUTH_CONFIG = {
   // Local development environment
   localhost: {
     clientId: "Ov23liCf78W2lLVcJspO",
-    redirectUri: "http://localhost:8080/",
+    redirectUri: "http://localhost:5500/",
     backendUrl: "http://localhost:3001",
   },
 
   // GitHub Codespaces environment
   codespaces: {
     clientId: "Ov23liCf78W2lLVcJspO",
-    redirectUri: window.location?.origin + "/" || "http://localhost:8080/",
+    redirectUri: window.location?.origin + "/" || "http://localhost:5500/",
     backendUrl: "https://yearprogress-4s7k.onrender.com",
   },
 

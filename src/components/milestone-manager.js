@@ -1,13 +1,25 @@
 /**
  * Milestone Manager - Handles milestone creation and management
  */
+import {
+  findOrCreateMilestoneGist,
+  loadMilestonesFromGist,
+  saveMilestonesToGist,
+  GIST_FILENAME
+} from '../../gist.js';
+
 export class MilestoneManager {
-  constructor() {
-    this.milestones = this.loadMilestones();
+  constructor(authManager = null) {
+    this.authManager = authManager;
+    this.milestones = [];
+    this.isLoading = false;
+    this.gistId = null;
+    
     this.addModal = document.getElementById("add-milestone-modal");
     this.addForm = document.getElementById("add-milestone-form");
     this.panel = document.getElementById("milestone-panel-overlay");
     this.panelContent = document.getElementById("milestone-panel-content");
+    this.loader = document.getElementById("loader-overlay");
 
     // Form elements
     this.dateInput = document.getElementById("modal-milestone-date");
@@ -28,9 +40,10 @@ export class MilestoneManager {
   /**
    * Initialize milestone manager
    */
-  init() {
+  async init() {
     this.bindEvents();
     this.setupEmojiSuggestions();
+    await this.loadMilestones();
     this.updateMilestoneDisplay();
   }
 
@@ -124,7 +137,7 @@ export class MilestoneManager {
    * Handle add milestone form submission
    * @param {Event} e - Form submit event
    */
-  handleAddMilestone(e) {
+  async handleAddMilestone(e) {
     e.preventDefault();
 
     const formData = {
@@ -140,13 +153,20 @@ export class MilestoneManager {
       return;
     }
 
-    const milestone = this.createMilestone(formData);
-    this.milestones.push(milestone);
-    this.saveMilestones();
-    this.updateMilestoneDisplay();
-    this.hideAddModal();
-
-    this.showSuccess("Milestone added successfully!");
+    try {
+      this.showLoader();
+      const milestone = this.createMilestone(formData);
+      this.milestones.push(milestone);
+      await this.saveMilestones();
+      this.updateMilestoneDisplay();
+      this.hideAddModal();
+      this.showSuccess("Milestone added successfully!");
+    } catch (error) {
+      console.error('Failed to add milestone:', error);
+      this.showError("Failed to add milestone. Please try again.");
+    } finally {
+      this.hideLoader();
+    }
   }
 
   /**
@@ -171,10 +191,19 @@ export class MilestoneManager {
    * Delete milestone
    * @param {string} id - Milestone ID
    */
-  deleteMilestone(id) {
-    this.milestones = this.milestones.filter((m) => m.id !== id);
-    this.saveMilestones();
-    this.updateMilestoneDisplay();
+  async deleteMilestone(id) {
+    try {
+      this.showLoader();
+      this.milestones = this.milestones.filter((m) => m.id !== id);
+      await this.saveMilestones();
+      this.updateMilestoneDisplay();
+      this.showSuccess("Milestone deleted successfully!");
+    } catch (error) {
+      console.error('Failed to delete milestone:', error);
+      this.showError("Failed to delete milestone. Please try again.");
+    } finally {
+      this.hideLoader();
+    }
   }
 
   /**
@@ -281,8 +310,26 @@ export class MilestoneManager {
   updatePanelContent() {
     if (!this.panelContent) return;
 
+    // Show auth benefits if not authenticated
+    let authSection = '';
+    if (!this.authManager || !this.authManager.isAuthenticated()) {
+      authSection = `
+        <div class="auth-required">
+          <div class="auth-message">
+            <strong>💡 Login with GitHub to sync your milestones!</strong>
+          </div>
+          <ul class="auth-benefits">
+            <li>Automatic cloud backup of all milestones</li>
+            <li>Access milestones from any device</li>
+            <li>Never lose your progress tracking data</li>
+          </ul>
+        </div>
+      `;
+    }
+
     if (this.milestones.length === 0) {
       this.panelContent.innerHTML = `
+        ${authSection}
         <div class="empty-state">
           <p>No milestones created yet.</p>
           <p>Click the + button to add your first milestone!</p>
@@ -296,6 +343,7 @@ export class MilestoneManager {
     );
 
     this.panelContent.innerHTML = `
+      ${authSection}
       <div class="milestone-list">
         ${sortedMilestones
           .map((milestone) => this.renderMilestoneItem(milestone))
@@ -364,30 +412,69 @@ export class MilestoneManager {
   }
 
   /**
-   * Load milestones from localStorage
-   * @returns {Array} Milestones array
+   * Load milestones from GitHub Gist (with localStorage fallback)
+   * @returns {Promise<Array>} Milestones array
    */
-  loadMilestones() {
+  async loadMilestones() {
     try {
-      const stored = localStorage.getItem("yearify-milestones");
-      return stored ? JSON.parse(stored) : [];
+      if (this.authManager && this.authManager.isAuthenticated()) {
+        // Load from GitHub Gist
+        this.showLoader();
+        const token = this.authManager.getCurrentToken();
+        this.milestones = await loadMilestonesFromGist(token);
+        console.log(`Loaded ${this.milestones.length} milestones from Gist`);
+      } else {
+        // Fallback to localStorage
+        const stored = localStorage.getItem("yearify-milestones");
+        this.milestones = stored ? JSON.parse(stored) : [];
+        console.log(`Loaded ${this.milestones.length} milestones from localStorage`);
+      }
     } catch (error) {
       console.error("Failed to load milestones:", error);
-      return [];
+      // Fallback to localStorage on error
+      try {
+        const stored = localStorage.getItem("yearify-milestones");
+        this.milestones = stored ? JSON.parse(stored) : [];
+      } catch (fallbackError) {
+        console.error("Fallback load also failed:", fallbackError);
+        this.milestones = [];
+      }
+    } finally {
+      this.hideLoader();
     }
+    return this.milestones;
   }
 
   /**
-   * Save milestones to localStorage
+   * Save milestones to GitHub Gist (with localStorage fallback)
    */
-  saveMilestones() {
+  async saveMilestones() {
     try {
-      localStorage.setItem(
-        "yearify-milestones",
-        JSON.stringify(this.milestones)
-      );
+      if (this.authManager && this.authManager.isAuthenticated()) {
+        // Save to GitHub Gist
+        const token = this.authManager.getCurrentToken();
+        await saveMilestonesToGist(token, this.milestones);
+        console.log(`Saved ${this.milestones.length} milestones to Gist`);
+      } else {
+        // Fallback to localStorage
+        localStorage.setItem(
+          "yearify-milestones",
+          JSON.stringify(this.milestones)
+        );
+        console.log(`Saved ${this.milestones.length} milestones to localStorage`);
+      }
     } catch (error) {
       console.error("Failed to save milestones:", error);
+      // Always save to localStorage as backup
+      try {
+        localStorage.setItem(
+          "yearify-milestones",
+          JSON.stringify(this.milestones)
+        );
+      } catch (fallbackError) {
+        console.error("Fallback save also failed:", fallbackError);
+      }
+      throw error; // Re-throw to let caller handle the error
     }
   }
 
@@ -405,7 +492,153 @@ export class MilestoneManager {
    * @param {string} message - Error message
    */
   showError(message) {
-    // This should be connected to a notification system
-    console.error("Error:", message);
+    this.showNotification(message, 'error');
+  }
+
+  /**
+   * Show loader overlay
+   */
+  showLoader() {
+    if (this.loader) {
+      this.loader.style.display = "flex";
+    }
+  }
+
+  /**
+   * Hide loader overlay
+   */
+  hideLoader() {
+    if (this.loader) {
+      this.loader.style.display = "none";
+    }
+  }
+
+  /**
+   * Sync milestones when auth state changes
+   */
+  async syncMilestones() {
+    if (this.authManager && this.authManager.isAuthenticated()) {
+      try {
+        this.showLoader();
+        
+        // Check if we have local milestones to migrate
+        const localMilestones = localStorage.getItem("yearify-milestones");
+        if (localMilestones && localMilestones !== '[]') {
+          const parsed = JSON.parse(localMilestones);
+          if (parsed.length > 0) {
+            // Merge local milestones with Gist milestones
+            const gistMilestones = await loadMilestonesFromGist(this.authManager.getCurrentToken());
+            const combined = this.mergeMilestones(parsed, gistMilestones);
+            this.milestones = combined;
+            await this.saveMilestones();
+            // Clear localStorage after successful sync
+            localStorage.removeItem("yearify-milestones");
+            this.showSuccess("Milestones synced successfully!");
+          } else {
+            // Just load from Gist
+            await this.loadMilestones();
+          }
+        } else {
+          // Just load from Gist
+          await this.loadMilestones();
+        }
+        
+        this.updateMilestoneDisplay();
+      } catch (error) {
+        console.error('Failed to sync milestones:', error);
+        this.showError("Failed to sync milestones.");
+      } finally {
+        this.hideLoader();
+      }
+    }
+  }
+
+  /**
+   * Merge local and gist milestones, avoiding duplicates
+   * @param {Array} localMilestones - Local milestones
+   * @param {Array} gistMilestones - Gist milestones  
+   * @returns {Array} Merged milestones
+   */
+  mergeMilestones(localMilestones, gistMilestones) {
+    const merged = [...gistMilestones];
+    
+    localMilestones.forEach(localMilestone => {
+      // Check if this milestone already exists in gist (by dateTime and label)
+      const exists = gistMilestones.some(gistMilestone => 
+        gistMilestone.dateTime === localMilestone.dateTime &&
+        gistMilestone.label === localMilestone.label
+      );
+      
+      if (!exists) {
+        merged.push(localMilestone);
+      }
+    });
+    
+    return merged.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+  }
+
+  /**
+   * Show notification
+   * @param {string} message - Notification message
+   * @param {string} type - Notification type (success, error, info)
+   */
+  showNotification(message, type = "info") {
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    // Add styles
+    Object.assign(notification.style, {
+      position: "fixed",
+      top: "70px",
+      right: "20px",
+      padding: "12px 20px",
+      borderRadius: "8px",
+      color: "white",
+      fontWeight: "500",
+      zIndex: "10002",
+      opacity: "0",
+      transform: "translateY(-20px)",
+      transition: "all 0.3s ease",
+      maxWidth: "300px",
+      wordWrap: "break-word",
+    });
+
+    // Set background color based on type
+    const colors = {
+      success: "#28a745",
+      error: "#dc3545",
+      info: "#17a2b8",
+    };
+    notification.style.backgroundColor = colors[type] || colors.info;
+
+    // Add to document
+    document.body.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => {
+      notification.style.opacity = "1";
+      notification.style.transform = "translateY(0)";
+    }, 100);
+
+    // Remove after 4 seconds
+    setTimeout(() => {
+      notification.style.opacity = "0";
+      notification.style.transform = "translateY(-20px)";
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 4000);
+  }
+
+  /**
+   * Set auth manager reference
+   * @param {AuthManager} authManager - Auth manager instance
+   */
+  setAuthManager(authManager) {
+    this.authManager = authManager;
   }
 }

@@ -356,3 +356,229 @@
 .panel-content {
   padding: 1rem;
 }
+
+/* ===== MILESTONE STYLES ===== */
+.milestone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.milestone-item {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.milestone-item:hover {
+  background: var(--bg-primary);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.milestone-item.past {
+  border-left: 4px solid var(--text-secondary);
+}
+
+.milestone-item.future {
+  border-left: 4px solid var(--accent);
+}
+
+.milestone-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.milestone-icon {
+  font-size: 1.2em;
+}
+
+.milestone-label {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.delete-milestone {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.2em;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.delete-milestone:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.milestone-datetime {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+
+.milestone-status {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.milestone-status.completed {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.milestone-status.upcoming {
+  background: rgba(0, 206, 201, 0.2);
+  color: var(--accent);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem 1rem;
+}
+
+.empty-state p {
+  margin-bottom: 0.5rem;
+}
+
+.no-milestones {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* ===== MILESTONE DISPLAY IN PROGRESS SECTIONS ===== */
+.milestone {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin: 0.2rem 0;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(0, 206, 201, 0.1);
+  border: 1px solid rgba(0, 206, 201, 0.3);
+}
+
+.milestone.past {
+  background: rgba(108, 117, 125, 0.1);
+  border-color: rgba(108, 117, 125, 0.3);
+  opacity: 0.7;
+}
+
+.milestone.future {
+  background: rgba(0, 206, 201, 0.1);
+  border-color: rgba(0, 206, 201, 0.3);
+}
+
+.milestone small {
+  opacity: 0.8;
+  margin-left: 0.3rem;
+}
+
+/* ===== NOTIFICATION STYLES ===== */
+.notification {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ===== LOADING STATES ===== */
+.milestone-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.milestone-loading::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text-secondary);
+  border-radius: 50%;
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== AUTH STATES ===== */
+.auth-required {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.auth-required .auth-message {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.auth-required .auth-benefits {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  list-style: none;
+  padding: 0;
+}
+
+.auth-required .auth-benefits li {
+  margin: 0.3rem 0;
+}
+
+.auth-required .auth-benefits li::before {
+  content: '✓ ';
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 600px) {
+  .side-panel {
+    width: 100vw;
+    right: -100vw;
+  }
+  
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .form-row label {
+    min-width: auto;
+  }
+  
+  .emoji-suggestions {
+    padding-left: 0;
+    justify-content: center;
+  }
+}
