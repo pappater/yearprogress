@@ -1,3 +1,5 @@
+import { getAuthConfig } from "../config/auth-config.js";
+
 /**
  * Auth Manager - Handles GitHub authentication and user management
  */
@@ -5,6 +7,7 @@ export class AuthManager {
   constructor() {
     this.githubUser = null;
     this.githubToken = null;
+    this.config = getAuthConfig();
     this.backendUrl = this.getBackendUrl();
 
     // DOM elements
@@ -30,12 +33,15 @@ export class AuthManager {
    * @returns {string} Backend URL
    */
   getBackendUrl() {
-    // Check if running locally
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      return "http://localhost:3001"; // Local development server (matches backend/server.js)
-    }
-    // Production backend URL (update this with your actual backend URL)
-    return "https://your-backend-url.com";
+    return this.config.backendUrl;
+  }
+
+  /**
+   * Get redirect URI based on environment
+   * @returns {string} Redirect URI
+   */
+  getRedirectUri() {
+    return this.config.redirectUri;
   }
 
   /**
@@ -52,7 +58,7 @@ export class AuthManager {
   restoreAuthFromStorage() {
     this.githubToken = localStorage.getItem("githubToken");
     const userStr = localStorage.getItem("githubUser");
-    
+
     if (this.githubToken && userStr) {
       try {
         this.githubUser = JSON.parse(userStr);
@@ -84,7 +90,7 @@ export class AuthManager {
     localStorage.removeItem("githubUser");
     this.githubToken = null;
     this.githubUser = null;
-    
+
     // Clear gist ID if it exists
     localStorage.removeItem("gistId");
   }
@@ -93,16 +99,26 @@ export class AuthManager {
    * Initiate GitHub OAuth login
    */
   initiateGitHubLogin() {
-    const clientId = "Ov23liWpZhgBNSqgRKHa"; // Your GitHub OAuth App Client ID
-    const redirectUri = window.location.origin + window.location.pathname;
+    const clientId = this.config.clientId;
+    // Use specific redirect URIs that match your GitHub OAuth app configuration
+    const redirectUri = this.getRedirectUri();
     const scope = "gist"; // Required for creating/updating gists
     const state = this.generateRandomState();
-    
+
     // Store state for validation
     sessionStorage.setItem("oauth_state", state);
-    
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}`;
-    
+
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&scope=${scope}&state=${state}`;
+
+    // Debug logging
+    console.log("GitHub OAuth Login:");
+    console.log("Client ID:", clientId);
+    console.log("Redirect URI:", redirectUri);
+    console.log("Current URL:", window.location.href);
+    console.log("Auth URL:", authUrl);
+
     window.location.href = authUrl;
   }
 
@@ -111,7 +127,10 @@ export class AuthManager {
    * @returns {string} Random state string
    */
   generateRandomState() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
   }
 
   /**
@@ -134,20 +153,27 @@ export class AuthManager {
       const storedState = sessionStorage.getItem("oauth_state");
       if (state !== storedState) {
         console.error("OAuth state mismatch");
-        this.showNotification("Login failed: Security validation error", "error");
+        this.showNotification(
+          "Login failed: Security validation error",
+          "error"
+        );
         return;
       }
 
       try {
         await this.exchangeCodeForToken(code);
-        
+
         // Clean up URL
-        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        const cleanUrl =
+          window.location.protocol +
+          "//" +
+          window.location.host +
+          window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
-        
+
         // Clean up session storage
         sessionStorage.removeItem("oauth_state");
-        
+
         this.showNotification("Successfully logged in to GitHub!", "success");
         this.updateUI();
       } catch (error) {
@@ -162,8 +188,8 @@ export class AuthManager {
    * @param {string} code - Authorization code
    */
   async exchangeCodeForToken(code) {
+    // Try primary backend (local or production)
     try {
-      // Try to use backend for token exchange (more secure)
       const response = await fetch(`${this.backendUrl}/auth/github/callback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -176,11 +202,33 @@ export class AuthManager {
         return;
       }
     } catch (error) {
-      console.warn("Backend authentication failed, falling back to client-side:", error);
+      console.warn(`Primary backend (${this.backendUrl}) failed:`, error);
     }
 
-    // Fallback to client-side token exchange (less secure, but works for demo)
-    await this.clientSideTokenExchange(code);
+    // If local backend failed and we're running locally, try production backend
+    if (this.backendUrl.includes("localhost")) {
+      try {
+        console.log("Falling back to production backend...");
+        const response = await fetch(
+          `https://yearprogress-4s7k.onrender.com/auth/github/callback`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          await this.handleSuccessfulAuth(data.access_token);
+          return;
+        }
+      } catch (error) {
+        console.warn("Production backend also failed:", error);
+      }
+    }
+
+    throw new Error("All backend authentication methods failed");
   }
 
   /**
@@ -190,21 +238,24 @@ export class AuthManager {
   async clientSideTokenExchange(code) {
     // Note: This is less secure and should only be used for development/demo
     // In production, always use a backend server for token exchange
-    const clientId = "Ov23liWpZhgBNSqgRKHa";
+    const clientId = this.config.clientId;
     const clientSecret = "your-client-secret"; // This should be on the backend!
 
-    const response = await fetch("https://github.com/login/oauth/access_token", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code: code,
-      }),
-    });
+    const response = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code: code,
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to exchange code for token");
@@ -235,9 +286,9 @@ export class AuthManager {
    */
   async fetchGitHubUser(token) {
     const response = await fetch("https://api.github.com/user", {
-      headers: { 
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/vnd.github.v3+json"
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json",
       },
     });
 
