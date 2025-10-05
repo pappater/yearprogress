@@ -101,36 +101,60 @@ async function renderMilestonePanel() {
       const milestones = await getMilestones();
       const m = milestones.find((m) => m.id === id);
       if (!m) return;
-      const newLabel = prompt("Edit label:", m.label || "");
-      const newDate = prompt("Edit date (YYYY-MM-DD):", m.date || "");
-      const newTime = prompt("Edit time (HH:MM):", m.time || "");
-      const newColor = prompt(
-        "Edit color (hex or name):",
-        m.customization?.color || "#00cec9"
-      );
-      const newIcon = prompt("Edit icon (emoji):", m.customization?.icon || "");
-      if (loader) loader.style.display = "inline-block";
-      btn.disabled = true;
-      try {
-        await editMilestone(id, {
-          label: newLabel,
-          date: newDate,
-          time: newTime,
-          customization: { color: newColor, icon: newIcon },
-        });
-        await renderMilestonePanel();
-        // Reload milestones from Gist and update UI
-        if (window.updateUI) {
-          const mod = await import("./milestoneData.js");
-          window.milestones = await mod.getMilestones();
-          window.updateUI();
+      // Show the Add Milestone modal as Edit, prefill values
+      const modal = document.getElementById("add-milestone-modal");
+      const form = document.getElementById("add-milestone-form");
+      modal.querySelector("h2").textContent = "Edit Milestone";
+      document.getElementById("modal-milestone-date").value = m.date || "";
+      document.getElementById("modal-milestone-time").value = m.time || "";
+      document.getElementById("modal-milestone-label").value = m.label || "";
+      document.getElementById("modal-milestone-color").value = m.customization?.color || "#00cec9";
+      document.getElementById("modal-milestone-icon").value = m.customization?.icon || "";
+      modal.style.display = "flex";
+      modal.style.zIndex = 10001;
+      modal.focus && modal.focus();
+      // Remove any previous submit listeners
+      const newForm = form.cloneNode(true);
+      form.parentNode.replaceChild(newForm, form);
+      // Cancel button logic
+      newForm.querySelector('#cancel-add-milestone').onclick = () => {
+        modal.style.display = "none";
+        newForm.reset();
+        modal.querySelector("h2").textContent = "Add Milestone";
+      };
+      newForm.onsubmit = async (ev) => {
+        ev.preventDefault();
+        if (loader) loader.style.display = "inline-block";
+        btn.disabled = true;
+        const newDate = document.getElementById("modal-milestone-date").value;
+        const newTime = document.getElementById("modal-milestone-time").value;
+        const newLabel = document.getElementById("modal-milestone-label").value;
+        const newColor = document.getElementById("modal-milestone-color").value;
+        const newIcon = document.getElementById("modal-milestone-icon").value;
+        try {
+          await editMilestone(id, {
+            label: newLabel,
+            date: newDate,
+            time: newTime,
+            customization: { color: newColor, icon: newIcon },
+          });
+          modal.style.display = "none";
+          newForm.reset();
+          modal.querySelector("h2").textContent = "Add Milestone";
+          await renderMilestonePanel();
+          // Reload milestones from Gist and update UI
+          if (window.updateUI) {
+            const mod = await import("./milestoneData.js");
+            window.milestones = await mod.getMilestones();
+            window.updateUI();
+          }
+        } catch (err) {
+          alert("Failed to edit milestone: " + (err?.message || err));
+        } finally {
+          btn.disabled = false;
+          if (loader) loader.style.display = "none";
         }
-      } catch (err) {
-        alert("Failed to edit milestone: " + (err?.message || err));
-      } finally {
-        btn.disabled = false;
-        if (loader) loader.style.display = "none";
-      }
+      };
     };
   });
   panel.querySelectorAll(".delete-btn").forEach((btn) => {

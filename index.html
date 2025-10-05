@@ -301,9 +301,8 @@
       <!-- Removed milestone-section buttons, now in header -->
 
       <!-- Add Milestone Modal -->
-      <div
-        id="add-milestone-modal"
-        style="
+      <style>
+        .milestone-modal-overlay {
           display: none;
           position: fixed;
           top: 0;
@@ -314,58 +313,123 @@
           z-index: 10001;
           align-items: center;
           justify-content: center;
-        "
-      >
-        <div
-          style="
-            background: #23272f;
-            padding: 2rem 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 2px 16px #0008;
-            min-width: 320px;
-            max-width: 90vw;
-          "
-        >
-          <h2 style="color: #00cec9; margin-top: 0">Add Milestone</h2>
+        }
+        .milestone-modal {
+          background: #23272f;
+          padding: 2rem 2.5rem;
+          border-radius: 16px;
+          box-shadow: 0 2px 16px #0008;
+          min-width: 320px;
+          max-width: 90vw;
+        }
+        .milestone-modal h2 {
+          color: #00cec9;
+          margin-top: 0;
+          text-align: center;
+        }
+        .milestone-modal-form-row {
+          display: flex;
+          align-items: center;
+          gap: 1em;
+          margin-bottom: 1.1em;
+        }
+        .milestone-modal-form-row label {
+          min-width: 70px;
+          color: #b2bec3;
+          font-size: 1em;
+        }
+        .milestone-modal-form-row input[type="text"],
+        .milestone-modal-form-row input[type="date"],
+        .milestone-modal-form-row input[type="time"] {
+          flex: 1;
+          padding: 0.45em 0.7em;
+          border-radius: 6px;
+          border: 1px solid #444;
+          background: #23272f;
+          color: #fff;
+          font-size: 1em;
+        }
+        .milestone-modal-form-row input[type="color"] {
+          width: 2.2em;
+          height: 2.2em;
+          border: none;
+          background: none;
+        }
+        .milestone-modal-btns {
+          display: flex;
+          justify-content: center;
+          gap: 1.5em;
+          margin-top: 1.2em;
+        }
+        .milestone-modal-btns button {
+          background: #00cec9;
+          color: #23272f;
+          border: none;
+          border-radius: 8px;
+          padding: 0.6em 2.2em;
+          font-size: 1.08em;
+          font-weight: 500;
+          cursor: pointer;
+          box-shadow: 0 2px 8px #0002;
+          transition: background 0.18s, color 0.18s;
+        }
+        .milestone-modal-btns button:hover {
+          background: #009fa8;
+          color: #fff;
+        }
+        .milestone-modal-btns #cancel-add-milestone {
+          background: #23272f;
+          color: #b2bec3;
+          border: 1px solid #444;
+        }
+        .milestone-modal-btns #cancel-add-milestone:hover {
+          background: #2d3436;
+          color: #fff;
+        }
+      </style>
+      <div id="add-milestone-modal" class="milestone-modal-overlay">
+        <div class="milestone-modal">
+          <h2>Add Milestone</h2>
           <form id="add-milestone-form">
-            <div style="margin-bottom: 1rem">
-              <label>Date:</label><br />
+            <div class="milestone-modal-form-row">
+              <label for="modal-milestone-date">Date:</label>
               <input type="date" id="modal-milestone-date" required />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Time:</label><br />
+            <div class="milestone-modal-form-row">
+              <label for="modal-milestone-time">Time:</label>
               <input type="time" id="modal-milestone-time" />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Label:</label><br />
-              <input
-                type="text"
-                id="modal-milestone-label"
-                maxlength="20"
-                placeholder="Label (optional)"
-              />
+            <div class="milestone-modal-form-row">
+              <label for="modal-milestone-label">Label:</label>
+              <input type="text" id="modal-milestone-label" maxlength="20" placeholder="Label (optional)" />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Color:</label><br />
+            <div class="milestone-modal-form-row">
+              <label for="modal-milestone-color">Color:</label>
               <input type="color" id="modal-milestone-color" value="#00cec9" />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Icon (emoji):</label><br />
-              <input
-                type="text"
-                id="modal-milestone-icon"
-                maxlength="2"
-                placeholder="e.g. 🎉"
-              />
+            <div class="milestone-modal-form-row">
+              <label for="modal-milestone-icon">Icon:</label>
+              <input type="text" id="modal-milestone-icon" maxlength="2" placeholder="e.g. 🎉" style="margin-right:0.5em;" />
             </div>
-            <div style="text-align: right">
-              <button
-                type="button"
-                id="cancel-add-milestone"
-                style="margin-right: 1rem"
-              >
-                Cancel
-              </button>
+            <div class="milestone-modal-form-row" style="margin-top:-0.7em;margin-bottom:0.7em;">
+              <label></label>
+              <div id="emoji-suggestions" style="display:flex;gap:0.4em;flex-wrap:wrap;align-items:center;">
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🎉</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">⭐</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🏆</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🎯</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🔥</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">💡</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🚀</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">📅</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">✅</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🥇</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">🌟</span>
+                <span class="emoji-suggestion" style="cursor:pointer;font-size:1.3em;">⏳</span>
+              </div>
+            </div>
+            <div class="milestone-modal-btns">
+              <button type="button" id="cancel-add-milestone">Cancel</button>
               <button type="submit">Add</button>
             </div>
           </form>
