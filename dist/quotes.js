@@ -98,5 +98,5 @@ export const QUOTES = [
   "Great things never come from comfort zones.",
   "Push yourself, because no one else is going to do it for you.",
   "Success is what happens after you have survived all your mistakes.",
-  "The way to get started is to quit talking and begin doing."
+  "The way to get started is to quit talking and begin doing.",
 ];

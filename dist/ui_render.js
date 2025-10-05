@@ -1,10 +1,39 @@
 // ui_render.js - UI rendering and event listeners
+
 import { milestones, addMilestone, loadMilestones } from "./milestones.js";
 import { githubUser, showUser } from "./auth.js";
 import { loginWithGitHub, logoutGitHub } from "./ui.js";
 import { QUOTES } from "./quotes.js";
 
+// Track selected milestone by unique key (date+label) for each bar, persist in localStorage
+const SELECTED_MILESTONE_KEY = "selectedMilestone";
+// Each value is {date, label} or null
+let selectedMilestone = {
+  year: null,
+  month: null,
+  week: null,
+  day: null,
+  custom: null,
+};
+
+function saveSelectedMilestone() {
+  localStorage.setItem(
+    SELECTED_MILESTONE_KEY,
+    JSON.stringify(selectedMilestone)
+  );
+}
+
+function loadSelectedMilestone() {
+  const data = localStorage.getItem(SELECTED_MILESTONE_KEY);
+  if (data) {
+    try {
+      selectedMilestone = JSON.parse(data);
+    } catch (e) {}
+  }
+}
+
 function showDailyQuote(date) {
+  // Find the daily-quote in the footer only
   const el = document.getElementById("daily-quote");
   if (!el) return;
   // Use day of year as index for quote
@@ -29,7 +58,8 @@ export function updateUI() {
     "progress-bar-bg-year",
     new Date(now.getFullYear(), 0, 1),
     new Date(now.getFullYear() + 1, 0, 1),
-    "milestone-info-year"
+    "milestone-info-year",
+    "year"
   );
   // Month
   const monthPercent = getMonthProgress(now);
@@ -41,7 +71,8 @@ export function updateUI() {
     "progress-bar-bg-month",
     new Date(now.getFullYear(), now.getMonth(), 1),
     new Date(now.getFullYear(), now.getMonth() + 1, 1),
-    "milestone-info-month"
+    "milestone-info-month",
+    "month"
   );
   // Week
   const weekPercent = getWeekProgress(now);
@@ -58,7 +89,8 @@ export function updateUI() {
     "progress-bar-bg-week",
     weekStart,
     weekEnd,
-    "milestone-info-week"
+    "milestone-info-week",
+    "week"
   );
   // Day
   const dayPercent = getDayProgress(now);
@@ -74,7 +106,8 @@ export function updateUI() {
     "progress-bar-bg-day",
     dayStart,
     dayEnd,
-    "milestone-info-day"
+    "milestone-info-day",
+    "day"
   );
   // Custom Range
   const startInput = document.getElementById("custom-start");
@@ -96,7 +129,8 @@ export function updateUI() {
         "progress-bar-bg-custom",
         new Date(startInput.value),
         new Date(endInput.value),
-        "milestone-info-custom"
+        "milestone-info-custom",
+        "custom"
       );
     } else {
       clearMilestoneMarkers("progress-bar-bg-custom");
@@ -162,13 +196,17 @@ function clearMilestoneMarkers(barId) {
     bar.querySelectorAll(".milestone-marker, .milestone-marker-label")
   ).forEach((e) => e.remove());
 }
+function isSameMilestone(a, b) {
+  if (!a || !b) return false;
+  return a.date === b.date && (a.label || "") === (b.label || "");
+}
+
 function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
   const bar = document.getElementById(barId);
   if (!bar) return;
   clearMilestoneMarkers(barId);
   const info = infoId ? document.getElementById(infoId) : null;
   if (info) info.textContent = "";
-  let milestoneIdx = 0;
   milestones.forEach((m) => {
     const d = new Date(m.date);
     if (isNaN(d) || d < rangeStart || d > rangeEnd) return;
@@ -178,6 +216,21 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
     marker.style.left = percent + "%";
     marker.tabIndex = 0;
     marker.style.position = "absolute";
+
+    // Restore selection and label if selected
+    if (
+      selKey &&
+      selectedMilestone[selKey] &&
+      isSameMilestone(selectedMilestone[selKey], {
+        date: m.date,
+        label: m.label,
+      })
+    ) {
+      marker.classList.add("selected");
+      if (info)
+        info.textContent =
+          (m.label ? m.label + " - " : "") + d.toLocaleDateString();
+    }
     marker.addEventListener("click", (e) => {
       e.stopPropagation();
       if (info)
@@ -187,13 +240,17 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
         .querySelectorAll(".milestone-marker.selected")
         .forEach((el) => el.classList.remove("selected"));
       marker.classList.add("selected");
+      if (selKey) {
+        selectedMilestone[selKey] = { date: m.date, label: m.label };
+        saveSelectedMilestone();
+      }
     });
     bar.appendChild(marker);
-    milestoneIdx++;
   });
 }
 
 export function setupEventListeners() {
+  loadSelectedMilestone();
   document
     .getElementById("login-github")
     .addEventListener("click", loginWithGitHub);
