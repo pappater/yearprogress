@@ -520,8 +520,14 @@
 /* ===== NOTIFICATION STYLES ===== */
 .notification {
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--shadow);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .notification {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* ===== LOADING STATES ===== */
@@ -627,4 +633,48 @@
     justify-content: center;
     margin-bottom: 0.5rem;
   }
+}
+
+/* ===== THEME-SPECIFIC ENHANCEMENTS ===== */
+
+/* Light theme specific styles */
+[data-theme="light"] .modal-content {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="light"] .side-panel {
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .action-button:hover {
+  background: var(--bg-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .dropdown-menu {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border-color);
+}
+
+/* Dark theme specific styles */
+[data-theme="dark"] .modal-content {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .side-panel {
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Improve contrast for better accessibility */
+[data-theme="light"] .milestone.past {
+  background: rgba(108, 117, 125, 0.15);
+  border-color: rgba(108, 117, 125, 0.4);
+  color: #495057;
+}
+
+[data-theme="light"] .milestone.future {
+  background: var(--accent-light);
+  border-color: rgba(0, 102, 204, 0.4);
+  color: var(--accent-hover);
 }
