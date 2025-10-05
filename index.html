@@ -64,27 +64,241 @@
     </div>
     <div class="container">
       <header class="app-header">
-        <h1 class="app-title">Yearify</h1>
-        <div class="app-subtitle">
-          Visualize your year, month, week, and day progress
+        <h1 class="app-title" style="margin: 0">Yearify</h1>
+        <div class="header-actions">
+          <style>
+            .app-header {
+              display: flex;
+              flex-direction: row !important;
+              align-items: center;
+              justify-content: space-between;
+              flex-wrap: nowrap;
+              padding: 0.5em 0.5em 0.5em 0;
+            }
+            .app-header * {
+              flex-direction: row !important;
+            }
+            .header-actions {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              flex-wrap: nowrap;
+            }
+            @media (max-width: 600px) {
+              .app-header {
+                padding: 0.5em 0.2em 0.5em 0.2em;
+              }
+              .app-title {
+                font-size: 1.1em;
+              }
+              .header-actions button,
+              .header-actions .hamburger-menu {
+                font-size: 1.2em !important;
+              }
+              .header-actions svg {
+                width: 22px !important;
+                height: 22px !important;
+              }
+              .header-actions {
+                gap: 4px;
+              }
+            }
+          </style>
+          <div style="position: relative; display: inline-block">
+            <button
+              id="show-add-milestone-modal"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.2em 0.5em;
+                font-size: 1.7em;
+                color: #fff;
+                outline: none;
+                position: relative;
+              "
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="16" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+              <span
+                class="tooltip"
+                style="
+                  visibility: hidden;
+                  opacity: 0;
+                  transition: opacity 0.2s;
+                  position: absolute;
+                  bottom: -2.2em;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: #23272f;
+                  color: #fff;
+                  padding: 4px 12px;
+                  border-radius: 6px;
+                  font-size: 0.8em;
+                  white-space: nowrap;
+                  z-index: 10;
+                  pointer-events: none;
+                "
+                >Add Milestone</span
+              >
+            </button>
+          </div>
+          <div style="position: relative; display: inline-block">
+            <button
+              id="open-milestone-panel"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.2em 0.5em;
+                font-size: 1.7em;
+                color: #fff;
+                outline: none;
+                position: relative;
+              "
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 9h6v6H9z" />
+              </svg>
+              <span
+                class="tooltip"
+                style="
+                  visibility: hidden;
+                  opacity: 0;
+                  transition: opacity 0.2s;
+                  position: absolute;
+                  bottom: -2.2em;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: #23272f;
+                  color: #fff;
+                  padding: 4px 12px;
+                  border-radius: 6px;
+                  font-size: 0.8em;
+                  white-space: nowrap;
+                  z-index: 10;
+                  pointer-events: none;
+                "
+                >Manage Milestones</span
+              >
+            </button>
+          </div>
+          <div
+            class="hamburger-menu"
+            style="position: relative; display: inline-block"
+          >
+            <button
+              id="hamburger-menu-btn"
+              title="Menu"
+              style="
+                font-size: 2em;
+                padding: 0.2em 0.5em;
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #fff;
+                outline: none;
+              "
+            >
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect y="7" width="32" height="3" rx="1.5" fill="white" />
+                <rect y="14.5" width="32" height="3" rx="1.5" fill="white" />
+                <rect y="22" width="32" height="3" rx="1.5" fill="white" />
+              </svg>
+            </button>
+            <div
+              id="hamburger-menu-dropdown"
+              style="
+                display: none;
+                position: absolute;
+                top: 2.6em;
+                right: 0;
+                background: #23272f;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px #0008;
+                min-width: 180px;
+                z-index: 1000;
+                overflow: hidden;
+              "
+            >
+              <button
+                id="copy-progress"
+                style="
+                  display: block;
+                  width: 100%;
+                  padding: 0.7em 1em;
+                  background: none;
+                  border: none;
+                  text-align: left;
+                  color: #fff;
+                  cursor: pointer;
+                "
+              >
+                Copy Progress
+              </button>
+              <button
+                id="share-image"
+                style="
+                  display: block;
+                  width: 100%;
+                  padding: 0.7em 1em;
+                  background: none;
+                  border: none;
+                  text-align: left;
+                  color: #fff;
+                  cursor: pointer;
+                "
+              >
+                Share as Image
+              </button>
+              <button
+                id="download-image"
+                style="
+                  display: block;
+                  width: 100%;
+                  padding: 0.7em 1em;
+                  background: none;
+                  border: none;
+                  text-align: left;
+                  color: #fff;
+                  cursor: pointer;
+                "
+              >
+                Download Image
+              </button>
+            </div>
+          </div>
         </div>
       </header>
-      <!-- Daily quote will be moved to the footer below -->
-      <div class="share-section">
-        <button id="copy-progress">Copy Progress as Text</button>
-        <button id="share-image">Share as Image</button>
-        <button id="download-image">Download as Image</button>
-      </div>
-      <div class="milestone-section">
-        <label>Add Milestone</label>
-        <button id="show-add-milestone-modal">Add Milestone</button>
-        <button
-          id="open-milestone-panel"
-          style="float: right; margin-left: 8px"
-        >
-          Manage Milestones
-        </button>
-      </div>
+      <!-- Removed milestone-section buttons, now in header -->
 
       <!-- Add Milestone Modal -->
       <div

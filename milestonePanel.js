@@ -49,19 +49,19 @@ async function renderMilestonePanel() {
       item.innerHTML = `
         <div class="milestone-label" style="color: ${
           m.customization?.color || "#00cec9"
-        }; display:flex; align-items:center; justify-content:space-between;">
+        }; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
           <span>${m.customization?.icon || ""} ${m.label || "(No label)"}</span>
           <span class="milestone-date" style="font-size:0.95em;color:#b2bec3;margin-left:8px;">${
             m.date
           } ${m.time || ""}</span>
-          <span class="milestone-actions" style="margin-left:12px;">
-            <button class="edit-btn" data-id="${
-              m.id
-            }" title="Edit" style="background:none;border:none;cursor:pointer;font-size:1.1em;">✏️</button>
-            <button class="delete-btn" data-id="${
-              m.id
-            }" title="Delete" style="background:none;border:none;cursor:pointer;font-size:1.1em;">🗑️</button>
-          </span>
+        </div>
+        <div class="milestone-actions" style="display:flex;justify-content:center;gap:16px;margin:12px 0 0 0;">
+          <button class="edit-btn" data-id="${
+            m.id
+          }" title="Edit" style="background:#23272f;border-radius:50%;border:none;cursor:pointer;font-size:1.2em;padding:0.5em 0.6em;box-shadow:0 2px 8px #0002;transition:background 0.2s;outline:none;color:#00cec9;">✏️</button>
+          <button class="delete-btn" data-id="${
+            m.id
+          }" title="Delete" style="background:#23272f;border-radius:50%;border:none;cursor:pointer;font-size:1.2em;padding:0.5em 0.6em;box-shadow:0 2px 8px #0002;transition:background 0.2s;outline:none;color:#ff7675;">🗑️</button>
         </div>
       `;
       panel.appendChild(item);

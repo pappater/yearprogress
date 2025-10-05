@@ -265,6 +265,53 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
 }
 
 export function setupEventListeners() {
+  // Tooltip for Add/Manage Milestone header buttons
+  function setupTooltip(btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      const tooltip = btn.querySelector(".tooltip");
+      if (tooltip) {
+        btn.addEventListener("mouseenter", () => {
+          tooltip.style.visibility = "visible";
+          tooltip.style.opacity = "1";
+        });
+        btn.addEventListener("mouseleave", () => {
+          tooltip.style.visibility = "hidden";
+          tooltip.style.opacity = "0";
+        });
+      }
+    }
+  }
+  setupTooltip("show-add-milestone-modal");
+  setupTooltip("open-milestone-panel");
+  // Hamburger Menu Dropdown
+  const hamburgerMenuBtn = document.getElementById("hamburger-menu-btn");
+  const hamburgerMenuDropdown = document.getElementById(
+    "hamburger-menu-dropdown"
+  );
+  if (hamburgerMenuBtn && hamburgerMenuDropdown) {
+    hamburgerMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      hamburgerMenuDropdown.style.display =
+        hamburgerMenuDropdown.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", (e) => {
+      if (
+        hamburgerMenuDropdown.style.display === "block" &&
+        !hamburgerMenuDropdown.contains(e.target) &&
+        !hamburgerMenuBtn.contains(e.target)
+      ) {
+        hamburgerMenuDropdown.style.display = "none";
+      }
+    });
+  }
+  // Share as Image button
+  const shareBtn = document.getElementById("share-image");
+  if (shareBtn)
+    shareBtn.addEventListener("click", (e) => {
+      shareProgressImage();
+      if (hamburgerMenuDropdown) hamburgerMenuDropdown.style.display = "none";
+    });
   loadSelectedMilestone();
   document
     .getElementById("login-github")
@@ -340,13 +387,7 @@ export function setupEventListeners() {
     });
   }
 
-  // Copy/Share/Download Progress
-  const copyBtn = document.getElementById("copy-progress");
-  if (copyBtn) copyBtn.addEventListener("click", copyProgressText);
-  const shareBtn = document.getElementById("share-image");
-  if (shareBtn) shareBtn.addEventListener("click", shareProgressImage);
-  const downloadBtn = document.getElementById("download-image");
-  if (downloadBtn) downloadBtn.addEventListener("click", downloadProgressImage);
+  // (Removed duplicate Hamburger Menu Dropdown block)
 
   loadMilestones().then(updateUI);
   setInterval(updateUI, 1000);
