@@ -1,0 +1,284 @@
+/* ===== LAYOUT STYLES ===== */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--bg-primary);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px var(--shadow),
+    0 1px 8px var(--accent-light);
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+/* ===== USER BAR ===== */
+.user-bar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ===== PROGRESS SECTIONS ===== */
+.progress-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.progress-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.progress-label {
+  display: block;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.progress-bar-container {
+  margin: 1rem 0;
+}
+
+.progress-bar-background {
+  background: var(--progress-bg);
+  border: 1px solid var(--progress-border);
+  border-radius: 8px;
+  height: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px var(--shadow-light);
+}
+
+.progress-bar-fill {
+  background: var(--progress-fill);
+  height: 100%;
+  border-radius: 7px;
+  transition: width 0.6s ease;
+  position: relative;
+}
+
+.progress-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.milestone-info {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  min-height: 1.2rem;
+}
+
+/* ===== CUSTOM RANGE INPUTS ===== */
+.custom-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.range-separator {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ===== INFO SECTION ===== */
+.info-section {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.date-info {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 1.5rem 0;
+}
+
+.daily-quote {
+  font-style: italic;
+  color: var(--text-secondary);
+  margin: 1.5rem 0;
+  padding: 0 1rem;
+  position: relative;
+  min-height: 1.5rem;
+}
+
+.daily-quote:not(:empty)::before {
+  content: "\201C";
+  font-size: 1.2em;
+  color: var(--text-muted);
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0.6;
+}
+
+/* ===== FOOTER ===== */
+.app-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem 1rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.footer-content {
+  max-width: 100%;
+}
+
+.footer-title {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--success),
+    var(--warning),
+    var(--accent)
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-move 8s ease-in-out infinite;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.footer-links {
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.footer-links a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.link-separator {
+  color: var(--text-muted);
+  margin: 0 0.5rem;
+}
+
+.footer-description {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+.footer-description a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer-description a:hover {
+  text-decoration: underline;
+}
+
+/* ===== LOADING OVERLAY ===== */
+.loader-overlay {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-overlay);
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-content {
+  background: var(--bg-secondary);
+  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px var(--shadow);
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.loader-spinner {
+  width: 48px;
+  height: 48px;
+  border: 6px solid var(--accent);
+  border-top: 6px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+.loader-text {
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 500;
+}

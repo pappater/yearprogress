@@ -1,0 +1,203 @@
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* ===== TABLET STYLES ===== */
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .header-actions {
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .progress-section {
+    padding: 1rem;
+  }
+  
+  .custom-range-inputs {
+    justify-content: center;
+  }
+  
+  .side-panel {
+    width: 100vw;
+    right: -100vw;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .emoji-suggestions {
+    padding-left: 0;
+    justify-content: center;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .form-row label {
+    min-width: auto;
+    text-align: left;
+  }
+}
+
+/* ===== MOBILE STYLES ===== */
+@media (max-width: 480px) {
+  .container {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .app-title {
+    font-size: 1.8rem;
+  }
+  
+  .header-actions {
+    gap: 0.5rem;
+  }
+  
+  .action-button {
+    padding: 0.4rem;
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .progress-section {
+    padding: 0.75rem;
+  }
+  
+  .progress-label {
+    font-size: 1rem;
+  }
+  
+  .custom-range-inputs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .date-input {
+    width: 100%;
+  }
+  
+  .modal-content {
+    margin: 0.5rem;
+    padding: 1rem;
+    min-width: auto;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .dropdown-menu {
+    min-width: 150px;
+    right: -50px;
+  }
+  
+  .tooltip {
+    display: none; /* Hide tooltips on mobile */
+  }
+}
+
+/* ===== LARGE SCREEN STYLES ===== */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 700px;
+    padding: 2.5rem;
+  }
+  
+  .app-title {
+    font-size: 3rem;
+  }
+  
+  .progress-section {
+    padding: 2rem;
+  }
+  
+  .side-panel {
+    width: 450px;
+    right: -450px;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .loader-spinner {
+    animation: none;
+  }
+  
+  .footer-title {
+    animation: none;
+  }
+  
+  .action-button:hover {
+    transform: none;
+  }
+  
+  .btn-primary:hover {
+    transform: none;
+  }
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #ffffff;
+    --shadow: rgba(255, 255, 255, 0.3);
+  }
+  
+  [data-theme="light"] {
+    --border-color: #000000;
+    --shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .user-bar,
+  .header-actions,
+  .modal-overlay,
+  .panel-overlay,
+  .loader-overlay {
+    display: none !important;
+  }
+  
+  .container {
+    box-shadow: none;
+    border: 1px solid #000;
+    margin: 0;
+    padding: 1rem;
+  }
+  
+  .progress-section {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+}
