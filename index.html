@@ -3,9 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yearify</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Yearify - Year Progress Tracker</title>
+
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="src/styles/theme.css" />
+    <link rel="stylesheet" href="src/styles/layout.css" />
+    <link rel="stylesheet" href="src/styles/components.css" />
+    <link rel="stylesheet" href="src/styles/responsive.css" />
   </head>
   <body>
     <div
@@ -47,32 +54,58 @@
         <div style="color: #00cec9; font-size: 1.2rem">Loading...</div>
       </div>
     </div>
-    <div id="user-bar">
+    <style>
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <div class="container">
       <style>
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
+        .container {
+          max-width: 620px !important;
+          width: 96vw;
+          margin: 4.5em auto 0 auto;
         }
       </style>
-      <button id="login-github">Login with GitHub</button>
-      <span id="user-info" style="display: none"></span>
-      <button id="logout-github" style="display: none">Logout</button>
-    </div>
-    <div class="container">
       <header class="app-header">
-        <h1 class="app-title" style="margin: 0">Yearify</h1>
+        <link rel="stylesheet" href="yearify-header.css" />
+        <h1
+          class="app-title yearify-pixel"
+          id="yearify-header"
+          style="margin: 0"
+        >
+          Yearify
+        </h1>
         <div class="header-actions">
           <style>
+            .progress-section {
+              background: none !important;
+              box-shadow: none !important;
+            }
+            .progress-section label,
+            .progress-section .progress-text,
+            .progress-section .milestone-info,
+            .progress-section .custom-range-inputs {
+              background: none !important;
+            }
+            .progress-bar-background {
+              background: rgba(44, 48, 56, 0.55) !important;
+              border-radius: 8px;
+              border: 1.5px solid #23272f;
+              box-shadow: 0 1px 4px #0002;
+            }
             .app-header {
               display: flex;
               flex-direction: row !important;
               align-items: center;
               justify-content: space-between;
-              flex-wrap: nowrap;
+              flex-wrap: wrap;
+              gap: 1rem;
               padding: 0.5em 0.5em 0.5em 0;
             }
             .app-header * {
@@ -81,8 +114,8 @@
             .header-actions {
               display: flex;
               align-items: center;
-              gap: 8px;
-              flex-wrap: nowrap;
+              gap: 0.5rem;
+              flex-wrap: wrap;
             }
             @media (max-width: 600px) {
               .app-header {
@@ -102,79 +135,43 @@
               .header-actions {
                 gap: 4px;
               }
+              .auth-section {
+                gap: 3px;
+              }
+              .auth-btn {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+              }
+              .auth-btn .icon {
+                width: 16px;
+                height: 16px;
+              }
+              .user-info {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.6rem;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
             }
           </style>
-          <div style="position: relative; display: inline-block">
-            <button
-              id="show-add-milestone-modal"
-              style="
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 0.2em 0.5em;
-                font-size: 1.7em;
-                color: #fff;
-                outline: none;
-                position: relative;
-              "
-            >
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+          <div class="action-button-wrapper">
+            <button id="show-add-milestone-modal" class="action-button" title="Add Milestone">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="16" />
                 <line x1="8" y1="12" x2="16" y2="12" />
               </svg>
-              <span
-                class="tooltip"
-                style="
-                  visibility: hidden;
-                  opacity: 0;
-                  transition: opacity 0.2s;
-                  position: absolute;
-                  bottom: -2.2em;
-                  left: 50%;
-                  transform: translateX(-50%);
-                  background: #23272f;
-                  color: #fff;
-                  padding: 4px 12px;
-                  border-radius: 6px;
-                  font-size: 0.8em;
-                  white-space: nowrap;
-                  z-index: 10;
-                  pointer-events: none;
-                "
-                >Add Milestone</span
+              <span class="tooltip">Add Milestone</span
               >
             </button>
           </div>
-          <div style="position: relative; display: inline-block">
-            <button
-              id="open-milestone-panel"
-              style="
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 0.2em 0.5em;
-                font-size: 1.7em;
-                color: #fff;
-                outline: none;
-                position: relative;
-              "
-            >
-              <svg
-                width="28"
-                height="28"
+          <div class="action-button-wrapper">
+            <button id="open-milestone-panel" class="action-button" title="Manage Milestones">
+              <svg class="icon"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="white"
+                stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -182,128 +179,55 @@
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <path d="M9 9h6v6H9z" />
               </svg>
-              <span
-                class="tooltip"
-                style="
-                  visibility: hidden;
-                  opacity: 0;
-                  transition: opacity 0.2s;
-                  position: absolute;
-                  bottom: -2.2em;
-                  left: 50%;
-                  transform: translateX(-50%);
-                  background: #23272f;
-                  color: #fff;
-                  padding: 4px 12px;
-                  border-radius: 6px;
-                  font-size: 0.8em;
-                  white-space: nowrap;
-                  z-index: 10;
-                  pointer-events: none;
-                "
-                >Manage Milestones</span
+              <span class="tooltip">Manage Milestones</span
               >
             </button>
           </div>
-          <div
-            class="hamburger-menu"
-            style="position: relative; display: inline-block"
-          >
-            <button
-              id="hamburger-menu-btn"
-              title="Menu"
-              style="
-                font-size: 2em;
-                padding: 0.2em 0.5em;
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #fff;
-                outline: none;
-              "
-            >
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect y="7" width="32" height="3" rx="1.5" fill="white" />
-                <rect y="14.5" width="32" height="3" rx="1.5" fill="white" />
-                <rect y="22" width="32" height="3" rx="1.5" fill="white" />
+          <!-- Theme Toggle -->
+          <div class="action-button-wrapper">
+            <button id="theme-toggle" class="action-button" title="Toggle Theme">
+              <svg id="theme-icon" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <span id="theme-tooltip" class="tooltip">Switch to Light Mode</span>
+            </button>
+          </div>
+
+          <!-- GitHub Auth Section -->
+          <div class="auth-section">
+            <button id="login-github" class="auth-btn">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              Login
+            </button>
+            <span id="user-info" class="user-info"></span>
+            <button id="logout-github" class="auth-btn">Logout</button>
+          </div>
+          
+          <div class="action-button-wrapper">
+            <button id="hamburger-menu-btn" class="action-button" title="Menu">
+              <svg class="icon" viewBox="0 0 32 32" fill="currentColor">
+                <rect y="7" width="32" height="3" rx="1.5" />
+                <rect y="14.5" width="32" height="3" rx="1.5" />
+                <rect y="22" width="32" height="3" rx="1.5" />
               </svg>
             </button>
-            <div
-              id="hamburger-menu-dropdown"
-              style="
-                display: none;
-                position: absolute;
-                top: 2.6em;
-                right: 0;
-                background: #23272f;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px #0008;
-                min-width: 180px;
-                z-index: 1000;
-                overflow: hidden;
-              "
-            >
-              <button
-                id="copy-progress"
-                style="
-                  display: block;
-                  width: 100%;
-                  padding: 0.7em 1em;
-                  background: none;
-                  border: none;
-                  text-align: left;
-                  color: #fff;
-                  cursor: pointer;
-                "
-              >
-                Copy Progress
-              </button>
-              <button
-                id="share-image"
-                style="
-                  display: block;
-                  width: 100%;
-                  padding: 0.7em 1em;
-                  background: none;
-                  border: none;
-                  text-align: left;
-                  color: #fff;
-                  cursor: pointer;
-                "
-              >
-                Share as Image
-              </button>
-              <button
-                id="download-image"
-                style="
-                  display: block;
-                  width: 100%;
-                  padding: 0.7em 1em;
-                  background: none;
-                  border: none;
-                  text-align: left;
-                  color: #fff;
-                  cursor: pointer;
-                "
-              >
-                Download Image
-              </button>
+            <div id="hamburger-menu-dropdown" class="dropdown-menu">
+              <button id="copy-progress" class="dropdown-item">Copy Progress</button>
+              <button id="share-image" class="dropdown-item">Share as Image</button>
+              <button id="download-image" class="dropdown-item">Download Image</button>
             </div>
           </div>
         </div>
       </header>
-      <!-- Removed milestone-section buttons, now in header -->
+
+        <!-- Progress Sections -->
+        <div class="progress-sections">
 
       <!-- Add Milestone Modal -->
-      <div
-        id="add-milestone-modal"
-        style="
+      <style>
+        .milestone-modal-overlay {
           display: none;
           position: fixed;
           top: 0;
@@ -314,30 +238,64 @@
           z-index: 10001;
           align-items: center;
           justify-content: center;
-        "
-      >
-        <div
-          style="
-            background: #23272f;
-            padding: 2rem 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 2px 16px #0008;
-            min-width: 320px;
-            max-width: 90vw;
-          "
-        >
-          <h2 style="color: #00cec9; margin-top: 0">Add Milestone</h2>
-          <form id="add-milestone-form">
-            <div style="margin-bottom: 1rem">
-              <label>Date:</label><br />
+        }
+        .milestone-modal {
+          background: #23272f;
+          padding: 2rem 2.5rem;
+          border-radius: 16px;
+          box-shadow: 0 2px 16px #0008;
+          min-width: 320px;
+          max-width: 90vw;
+        }
+        .milestone-modal h2 {
+          color: #00cec9;
+          margin-top: 0;
+          text-align: center;
+        }
+        .milestone-modal-form-row {
+          display: flex;
+          align-items: center;
+          gap: 1em;
+          margin-bottom: 1.1em;
+        }
+        .milestone-modal-form-row label {
+          min-width: 70px;
+          color: #b2bec3;
+          font-size: 1em;
+        }
+        .milestone-modal-form-row input[type="text"],
+        .milestone-modal-form-row input[type="date"],
+        .milestone-modal-form-row input[type="time"] {
+          flex: 1;
+          padding: 0.45em 0.7em;
+          border-radius: 6px;
+          border: 1px solid #444;
+          background: #23272f;
+          color: #fff;
+          font-size: 1em;
+        }
+        .milestone-modal-form-row input[type="color"] {
+          width: 2.2em;
+          height: 2.2em;
+          border: none;
+          background: none;
+        }
+
+      </style>
+      <div id="add-milestone-modal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="modal-title">Add Milestone</h2>
+          <form id="add-milestone-form" class="modal-form">
+            <div class="form-row">
+              <label for="modal-milestone-date">Date:</label>
               <input type="date" id="modal-milestone-date" required />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Time:</label><br />
+            <div class="form-row">
+              <label for="modal-milestone-time">Time:</label>
               <input type="time" id="modal-milestone-time" />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Label:</label><br />
+            <div class="form-row">
+              <label for="modal-milestone-label">Label:</label>
               <input
                 type="text"
                 id="modal-milestone-label"
@@ -345,12 +303,12 @@
                 placeholder="Label (optional)"
               />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Color:</label><br />
+            <div class="form-row">
+              <label for="modal-milestone-color">Color:</label>
               <input type="color" id="modal-milestone-color" value="#00cec9" />
             </div>
-            <div style="margin-bottom: 1rem">
-              <label>Icon (emoji):</label><br />
+            <div class="form-row">
+              <label for="modal-milestone-icon">Icon:</label>
               <input
                 type="text"
                 id="modal-milestone-icon"
@@ -358,139 +316,163 @@
                 placeholder="e.g. 🎉"
               />
             </div>
-            <div style="text-align: right">
-              <button
-                type="button"
-                id="cancel-add-milestone"
-                style="margin-right: 1rem"
-              >
-                Cancel
-              </button>
-              <button type="submit">Add</button>
+            <div class="emoji-suggestions" id="emoji-suggestions">
+              <span class="emoji-suggestion">🎉</span>
+              <span class="emoji-suggestion">⭐</span>
+              <span class="emoji-suggestion">🏆</span>
+              <span class="emoji-suggestion">🎯</span>
+              <span class="emoji-suggestion">🔥</span>
+              <span class="emoji-suggestion">💡</span>
+              <span class="emoji-suggestion">🚀</span>
+              <span class="emoji-suggestion">📅</span>
+              <span class="emoji-suggestion">✅</span>
+              <span class="emoji-suggestion">🥇</span>
+              <span class="emoji-suggestion">🌟</span>
+              <span class="emoji-suggestion">⏳</span>
+            </div>
+            <div class="modal-buttons">
+              <button type="button" class="btn btn-secondary" id="cancel-add-milestone">Cancel</button>
+              <button type="submit" class="btn btn-primary">Add</button>
             </div>
           </form>
         </div>
       </div>
-      <div class="progress-section">
-        <label>Year</label>
-        <div class="progress-bar-background" id="progress-bar-bg-year">
-          <div class="progress-bar-fill" id="progress-bar-year"></div>
+
+          <!-- Year Progress Section -->
+          <div class="progress-section">
+            <label class="progress-label">Year</label>
+            <div class="progress-bar-container">
+              <div class="progress-bar-background" id="progress-bar-bg-year">
+                <div class="progress-bar-fill" id="progress-bar-year"></div>
+              </div>
+            </div>
+            <div class="progress-text" id="progress-text-year"></div>
+            <div class="milestone-info" id="milestone-info-year"></div>
+          </div>
+
+          <!-- Month Progress Section -->
+          <div class="progress-section">
+            <label class="progress-label">Month</label>
+            <div class="progress-bar-container">
+              <div class="progress-bar-background" id="progress-bar-bg-month">
+                <div class="progress-bar-fill" id="progress-bar-month"></div>
+              </div>
+            </div>
+            <div class="progress-text" id="progress-text-month"></div>
+            <div class="milestone-info" id="milestone-info-month"></div>
+          </div>
+
+          <!-- Week Progress Section -->
+          <div class="progress-section">
+            <label class="progress-label">Week</label>
+            <div class="progress-bar-container">
+              <div class="progress-bar-background" id="progress-bar-bg-week">
+                <div class="progress-bar-fill" id="progress-bar-week"></div>
+              </div>
+            </div>
+            <div class="progress-text" id="progress-text-week"></div>
+            <div class="milestone-info" id="milestone-info-week"></div>
+          </div>
+
+          <!-- Day Progress Section -->
+          <div class="progress-section">
+            <label class="progress-label">Day</label>
+            <div class="progress-bar-container">
+              <div class="progress-bar-background" id="progress-bar-bg-day">
+                <div class="progress-bar-fill" id="progress-bar-day"></div>
+              </div>
+            </div>
+            <div class="progress-text" id="progress-text-day"></div>
+            <div class="milestone-info" id="milestone-info-day"></div>
+          </div>
+
+          <!-- Custom Range Progress Section -->
+          <div class="progress-section custom-range-section">
+            <div class="progress-label-container">
+              <label class="progress-label">Custom Range</label>
+              <button id="clear-custom-range" class="clear-range-btn" title="Clear custom range">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="custom-range-inputs">
+              <div class="date-input-group">
+                <label for="custom-start" class="date-label">Start</label>
+                <input type="date" id="custom-start" class="custom-date-input" />
+              </div>
+              <div class="range-separator">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14m-7-7l7 7-7 7"/>
+                </svg>
+              </div>
+              <div class="date-input-group">
+                <label for="custom-end" class="date-label">End</label>
+                <input type="date" id="custom-end" class="custom-date-input" />
+              </div>
+            </div>
+
+            <div class="quick-presets">
+              <button class="preset-btn" data-preset="this-quarter">This Quarter</button>
+              <button class="preset-btn" data-preset="this-semester">This Semester</button>
+              <button class="preset-btn" data-preset="last-30-days">Last 30 Days</button>
+              <button class="preset-btn" data-preset="next-30-days">Next 30 Days</button>
+              <button class="preset-btn" data-preset="this-year-remaining">Year Remaining</button>
+            </div>
+            
+            <div class="progress-bar-container">
+              <div class="progress-bar-background" id="progress-bar-bg-custom">
+                <div class="progress-bar-fill" id="progress-bar-custom"></div>
+              </div>
+            </div>
+            <div class="progress-text" id="progress-text-custom"></div>
+            <div class="milestone-info" id="milestone-info-custom"></div>
+          </div>
+
+           <!-- Info Section -->
+        <div class="info-section">
+          <div class="date-info" id="date-info"></div>
+          <div id="daily-quote" class="daily-quote"></div>
         </div>
-        <div class="progress-text" id="progress-text-year"></div>
-        <div class="milestone-info" id="milestone-info-year"></div>
-      </div>
-      <div class="progress-section">
-        <label>Month</label>
-        <div class="progress-bar-background" id="progress-bar-bg-month">
-          <div class="progress-bar-fill" id="progress-bar-month"></div>
-        </div>
-        <div class="progress-text" id="progress-text-month"></div>
-        <div class="milestone-info" id="milestone-info-month"></div>
-      </div>
-      <div class="progress-section">
-        <label>Week</label>
-        <div class="progress-bar-background" id="progress-bar-bg-week">
-          <div class="progress-bar-fill" id="progress-bar-week"></div>
-        </div>
-        <div class="progress-text" id="progress-text-week"></div>
-        <div class="milestone-info" id="milestone-info-week"></div>
-      </div>
-      <div class="progress-section">
-        <label>Day</label>
-        <div class="progress-bar-background" id="progress-bar-bg-day">
-          <div class="progress-bar-fill" id="progress-bar-day"></div>
-        </div>
-        <div class="progress-text" id="progress-text-day"></div>
-        <div class="milestone-info" id="milestone-info-day"></div>
-      </div>
-      <div class="progress-section">
-        <label>Custom Range</label>
-        <div class="custom-range-inputs">
-          <input type="date" id="custom-start" />
-          <span style="color: #b2bec3">to</span>
-          <input type="date" id="custom-end" />
-        </div>
-        <div class="progress-bar-background" id="progress-bar-bg-custom">
-          <div class="progress-bar-fill" id="progress-bar-custom"></div>
-        </div>
-        <div class="progress-text" id="progress-text-custom"></div>
-        <div class="milestone-info" id="milestone-info-custom"></div>
-      </div>
-      <p class="date-info" id="date-info"></p>
-      <footer <footer style="text-align: center; margin: 32px 0 8px 0">
-        <div id="daily-quote"></div>
-        <div>
-          Year Progress &copy; 2025 &mdash;
-          <a href="https://github.com/pappater/yearprogress" target="_blank"
-            >Source on GitHub</a
-          >
-          &nbsp;|&nbsp;
-          <a href="https://pappater.github.io/" target="_blank"
-            >More by pappater</a
-          >
-          <br />
-          <small
-            >Track your year, month, week, and day progress. Built with ❤️ by
-            <a href="https://github.com/pappater" target="_blank">pappater</a
-            >.</small
-          >
-        </div>
-      </footer>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+          <div class="footer-content">
+            <div class="footer-title">Yearify &copy; 2025</div>
+            <div class="footer-links">
+              <a href="https://github.com/pappater/yearprogress" target="_blank">Source on GitHub</a>
+              <span class="link-separator">|</span>
+              <a href="https://pappater.github.io/" target="_blank">More by pappater</a>
+            </div>
+            <div class="footer-description">
+              Track your year, month, week, and day progress. Built with ❤️ by
+              <a href="https://github.com/pappater" target="_blank">pappater</a>.
+            </div>
+          </div>
+        </footer>
+        
+        </div> <!-- End progress-sections -->
+
+     
+
+    </div> <!-- End container -->
+
       <!-- Milestone Management Panel with Overlay -->
-      <div
-        id="milestone-panel-overlay"
-        style="
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          z-index: 10000;
-          background: rgba(0, 0, 0, 0.15);
-        "
-      >
-        <div
-          id="milestone-panel"
-          style="
-            position: absolute;
-            top: 0;
-            right: -400px;
-            width: 400px;
-            height: 100vh;
-            background: #23272f;
-            box-shadow: -2px 0 16px #0008;
-            transition: right 0.3s;
-            overflow-y: auto;
-          "
-        >
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding: 1rem;
-              background: #1e222a;
-            "
-          >
-            <span style="font-size: 1.2rem; color: #00cec9">Milestones</span>
-            <button
-              id="close-milestone-panel"
-              style="
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                color: #fff;
-              "
-            >
+      <div id="milestone-panel-overlay" class="panel-overlay">
+        <div id="milestone-panel" class="side-panel">
+          <div class="panel-header">
+            <span class="panel-title">Milestones</span>
+            <button id="close-milestone-panel" class="close-button">
               &times;
             </button>
           </div>
-          <div id="milestone-panel-content" style="padding: 1rem"></div>
+          <div id="milestone-panel-content" class="panel-content"></div>
         </div>
       </div>
     </div>
-    <script type="module" src="ui.js"></script>
-    <script type="module" src="milestonePanel.js"></script>
+    <!-- JavaScript Modules -->
+    <script type="module" src="src/app.js"></script>
   </body>
 </html>

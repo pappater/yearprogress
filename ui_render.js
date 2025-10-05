@@ -265,6 +265,17 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
 }
 
 export function setupEventListeners() {
+  // Emoji suggestions for Add Milestone modal
+  const emojiSuggestions = document.querySelectorAll('#emoji-suggestions .emoji-suggestion');
+  const iconInput = document.getElementById('modal-milestone-icon');
+  if (emojiSuggestions && iconInput) {
+    emojiSuggestions.forEach(span => {
+      span.addEventListener('click', () => {
+        iconInput.value = span.textContent;
+        iconInput.focus();
+      });
+    });
+  }
   // Tooltip for Add/Manage Milestone header buttons
   function setupTooltip(btnId) {
     const btn = document.getElementById(btnId);
