@@ -1,0 +1,171 @@
+/* ===== THEME VARIABLES ===== */
+:root {
+  /* Dark Theme (Default) */
+  --bg-primary: #181c20;
+  --bg-secondary: #23272f;
+  --bg-tertiary: #2d3436;
+  --bg-overlay: rgba(24, 28, 32, 0.85);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b2bec3;
+  --text-muted: #636e72;
+  
+  --border-color: #444444;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  
+  --accent: #00cec9;
+  --accent-hover: #009fa8;
+  --accent-light: rgba(0, 206, 201, 0.2);
+  
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --error: #ff7675;
+  
+  /* Progress Bar Colors */
+  --progress-bg: rgba(44, 48, 56, 0.55);
+  --progress-fill: var(--accent);
+  --progress-border: var(--bg-secondary);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-overlay: rgba(255, 255, 255, 0.95);
+  
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+  
+  --border-color: #dee2e6;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  
+  --accent: #0066cc;
+  --accent-hover: #0052a3;
+  --accent-light: rgba(0, 102, 204, 0.15);
+  
+  --success: #28a745;
+  --warning: #ffc107;
+  --error: #dc3545;
+  
+  --progress-bg: #e9ecef;
+  --progress-fill: var(--accent);
+  --progress-border: var(--border-color);
+}
+
+/* ===== THEME TRANSITIONS ===== */
+*, *::before, *::after {
+  transition: 
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ===== THEME ANIMATIONS ===== */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* ===== THEME TOGGLE SPECIFIC STYLES ===== */
+#theme-toggle {
+  position: relative;
+  overflow: hidden;
+}
+
+#theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--accent-light);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+  z-index: -1;
+}
+
+#theme-toggle:hover::before {
+  width: 40px;
+  height: 40px;
+}
+
+#theme-icon {
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+#theme-toggle:active #theme-icon {
+  transform: scale(0.9);
+}
+
+/* Theme transition animation */
+.theme-transition * {
+  transition: all 0.3s ease !important;
+}
+
+/* ===== BODY THEME STYLES ===== */
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* ===== FOCUS STYLES ===== */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== THEME-SPECIFIC ADJUSTMENTS ===== */
+[data-theme="light"] .yearify-pixel {
+  text-shadow: 2px 2px 0px rgba(0, 102, 204, 0.3);
+}
+
+[data-theme="dark"] .yearify-pixel {
+  text-shadow: 2px 2px 0px rgba(0, 206, 201, 0.3);
+}
+
+/* Progress bar enhancements for light theme */
+[data-theme="light"] .progress-bar-background {
+  background: var(--progress-bg) !important;
+  border: 1.5px solid var(--border-color) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .progress-bar-fill {
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+}
