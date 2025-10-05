@@ -47,21 +47,16 @@ async function renderMilestonePanel() {
       const item = document.createElement("div");
       item.className = "milestone-item";
       item.innerHTML = `
-        <div class="milestone-label" style="color: ${
-          m.customization?.color || "#00cec9"
-        }; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-          <span>${m.customization?.icon || ""} ${m.label || "(No label)"}</span>
-          <span class="milestone-date" style="font-size:0.95em;color:#b2bec3;margin-left:8px;">${
-            m.date
-          } ${m.time || ""}</span>
-        </div>
-        <div class="milestone-actions" style="display:flex;justify-content:center;gap:16px;margin:12px 0 0 0;">
-          <button class="edit-btn" data-id="${
-            m.id
-          }" title="Edit" style="background:#23272f;border-radius:50%;border:none;cursor:pointer;font-size:1.2em;padding:0.5em 0.6em;box-shadow:0 2px 8px #0002;transition:background 0.2s;outline:none;color:#00cec9;">✏️</button>
-          <button class="delete-btn" data-id="${
-            m.id
-          }" title="Delete" style="background:#23272f;border-radius:50%;border:none;cursor:pointer;font-size:1.2em;padding:0.5em 0.6em;box-shadow:0 2px 8px #0002;transition:background 0.2s;outline:none;color:#ff7675;">🗑️</button>
+        <div class="milestone-row" style="display:flex;align-items:center;gap:12px;justify-content:flex-start;padding:8px 0;position:relative;">
+          <span class="milestone-label" style="color: ${m.customization?.color || "#00cec9"};font-weight:500;">${m.customization?.icon || ""} ${m.label || "(No label)"}</span>
+          <span class="milestone-date" style="font-size:0.95em;color:#b2bec3;">${m.date} ${m.time || ""}</span>
+          <span class="milestone-actions" style="display:flex;gap:8px;margin-left:auto;">
+            <button class="edit-btn" data-id="${m.id}" title="Edit" style="background:#23272f;border-radius:50%;border:none;cursor:pointer;font-size:1.1em;padding:0.4em 0.5em;box-shadow:0 2px 8px #0002;transition:background 0.2s;outline:none;color:#00cec9;">✏️</button>
+            <button class="delete-btn" data-id="${m.id}" title="Delete" style="background:#23272f;border-radius:50%;border:none;cursor:pointer;font-size:1.1em;padding:0.4em 0.5em;box-shadow:0 2px 8px #0002;transition:background 0.2s;outline:none;color:#ff7675;">🗑️</button>
+          </span>
+          <span class="milestone-loader" style="display:none;position:absolute;right:36px;top:50%;transform:translateY(-50%);">
+            <span style="display:inline-block;width:18px;height:18px;border:2.5px solid #00cec9;border-top:2.5px solid #23272f;border-radius:50%;animation:spin 0.7s linear infinite;"></span>
+          </span>
         </div>
       `;
       panel.appendChild(item);
@@ -91,6 +86,8 @@ async function renderMilestonePanel() {
   panel.querySelectorAll(".edit-btn").forEach((btn) => {
     btn.onclick = async (e) => {
       const id = btn.getAttribute("data-id");
+      const item = btn.closest('.milestone-row');
+      const loader = item.querySelector('.milestone-loader');
       const milestones = await getMilestones();
       const m = milestones.find((m) => m.id === id);
       if (!m) return;
@@ -102,7 +99,7 @@ async function renderMilestonePanel() {
         m.customization?.color || "#00cec9"
       );
       const newIcon = prompt("Edit icon (emoji):", m.customization?.icon || "");
-      if (window.showLoader) window.showLoader(true);
+      if (loader) loader.style.display = 'inline-block';
       btn.disabled = true;
       try {
         await editMilestone(id, {
@@ -122,15 +119,17 @@ async function renderMilestonePanel() {
         alert("Failed to edit milestone: " + (err?.message || err));
       } finally {
         btn.disabled = false;
-        if (window.showLoader) window.showLoader(false);
+        if (loader) loader.style.display = 'none';
       }
     };
   });
   panel.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.onclick = async (e) => {
       const id = btn.getAttribute("data-id");
+      const item = btn.closest('.milestone-row');
+      const loader = item.querySelector('.milestone-loader');
       if (confirm("Delete this milestone?")) {
-        if (window.showLoader) window.showLoader(true);
+        if (loader) loader.style.display = 'inline-block';
         btn.disabled = true;
         try {
           await deleteMilestone(id);
@@ -140,11 +139,15 @@ async function renderMilestonePanel() {
           alert("Failed to delete milestone: " + (err?.message || err));
         } finally {
           btn.disabled = false;
-          if (window.showLoader) window.showLoader(false);
+          if (loader) loader.style.display = 'none';
         }
       }
     };
   });
+// Spinner animation
+const style = document.createElement('style');
+style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+document.head.appendChild(style);
 }
 
 export { openMilestonePanel, closeMilestonePanel, renderMilestonePanel };
