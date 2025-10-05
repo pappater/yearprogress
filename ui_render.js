@@ -208,7 +208,18 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
   const info = infoId ? document.getElementById(infoId) : null;
   if (info) info.textContent = "";
   milestones.forEach((m) => {
-    const d = new Date(m.date);
+    let d;
+    // For day bar, use both date and time for milestone position
+    if (barId === "progress-bar-bg-day" && m.time) {
+      // m.time is in HH:MM format
+      const [h, min] = m.time.split(":");
+      d = new Date(m.date);
+      if (!isNaN(h) && !isNaN(min)) {
+        d.setHours(Number(h), Number(min), 0, 0);
+      }
+    } else {
+      d = new Date(m.date);
+    }
     if (isNaN(d) || d < rangeStart || d > rangeEnd) return;
     const percent = ((d - rangeStart) / (rangeEnd - rangeStart)) * 100;
     const marker = document.createElement("div");
@@ -229,13 +240,17 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
       marker.classList.add("selected");
       if (info)
         info.textContent =
-          (m.label ? m.label + " - " : "") + d.toLocaleDateString();
+          (m.label ? m.label + " - " : "") +
+          d.toLocaleDateString() +
+          (m.time ? " " + m.time : "");
     }
     marker.addEventListener("click", (e) => {
       e.stopPropagation();
       if (info)
         info.textContent =
-          (m.label ? m.label + " - " : "") + d.toLocaleDateString();
+          (m.label ? m.label + " - " : "") +
+          d.toLocaleDateString() +
+          (m.time ? " " + m.time : "");
       bar
         .querySelectorAll(".milestone-marker.selected")
         .forEach((el) => el.classList.remove("selected"));
@@ -250,6 +265,53 @@ function renderMilestoneMarkers(barId, rangeStart, rangeEnd, infoId, selKey) {
 }
 
 export function setupEventListeners() {
+  // Tooltip for Add/Manage Milestone header buttons
+  function setupTooltip(btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      const tooltip = btn.querySelector(".tooltip");
+      if (tooltip) {
+        btn.addEventListener("mouseenter", () => {
+          tooltip.style.visibility = "visible";
+          tooltip.style.opacity = "1";
+        });
+        btn.addEventListener("mouseleave", () => {
+          tooltip.style.visibility = "hidden";
+          tooltip.style.opacity = "0";
+        });
+      }
+    }
+  }
+  setupTooltip("show-add-milestone-modal");
+  setupTooltip("open-milestone-panel");
+  // Hamburger Menu Dropdown
+  const hamburgerMenuBtn = document.getElementById("hamburger-menu-btn");
+  const hamburgerMenuDropdown = document.getElementById(
+    "hamburger-menu-dropdown"
+  );
+  if (hamburgerMenuBtn && hamburgerMenuDropdown) {
+    hamburgerMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      hamburgerMenuDropdown.style.display =
+        hamburgerMenuDropdown.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", (e) => {
+      if (
+        hamburgerMenuDropdown.style.display === "block" &&
+        !hamburgerMenuDropdown.contains(e.target) &&
+        !hamburgerMenuBtn.contains(e.target)
+      ) {
+        hamburgerMenuDropdown.style.display = "none";
+      }
+    });
+  }
+  // Share as Image button
+  const shareBtn = document.getElementById("share-image");
+  if (shareBtn)
+    shareBtn.addEventListener("click", (e) => {
+      shareProgressImage();
+      if (hamburgerMenuDropdown) hamburgerMenuDropdown.style.display = "none";
+    });
   loadSelectedMilestone();
   document
     .getElementById("login-github")
@@ -258,27 +320,74 @@ export function setupEventListeners() {
     .getElementById("logout-github")
     .addEventListener("click", logoutGitHub);
   // Add Milestone button
-  const addBtn = document.getElementById("add-milestone");
-  const dateInput = document.getElementById("milestone-date");
-  const labelInput = document.getElementById("milestone-label");
-  if (addBtn && dateInput) {
-    addBtn.addEventListener("click", async () => {
-      if (dateInput.value) {
-        await addMilestone(dateInput.value, labelInput.value);
-        dateInput.value = "";
-        labelInput.value = "";
+  // Modal logic for adding milestone
+  const showModalBtn = document.getElementById("show-add-milestone-modal");
+  const modal = document.getElementById("add-milestone-modal");
+  const form = document.getElementById("add-milestone-form");
+  const cancelBtn = document.getElementById("cancel-add-milestone");
+  if (showModalBtn && modal && form && cancelBtn) {
+    showModalBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+      modal.style.zIndex = 10001;
+      modal.focus && modal.focus();
+    });
+    cancelBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      form.reset();
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      console.log("[Milestone Modal] Add button clicked");
+      const date = document.getElementById("modal-milestone-date").value;
+      const time = document.getElementById("modal-milestone-time").value;
+      const label = document.getElementById("modal-milestone-label").value;
+      const color = document.getElementById("modal-milestone-color").value;
+      const icon = document.getElementById("modal-milestone-icon").value;
+      const milestone = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+        date,
+        time: time || "",
+        label,
+        customization: { color: color || "#00cec9", icon: icon || "" },
+      };
+      try {
+        const mod = await import("./milestoneData.js");
+        await mod.addMilestone(milestone);
+        modal.style.display = "none";
+        form.reset();
+        // Reload milestones and update UI
+        window.milestones = await mod.getMilestones();
         updateUI();
+        // If milestone panel is open, re-render it
+        const panel = document.getElementById("milestone-panel");
+        if (panel && panel.style.right === "0px") {
+          import("./milestonePanel.js").then((mod) =>
+            mod.renderMilestonePanel()
+          );
+        }
+      } catch (err) {
+        alert("Failed to add milestone: " + (err?.message || err));
       }
     });
   }
+  // Milestone panel open/close
+  const openPanelBtn = document.getElementById("open-milestone-panel");
+  const closePanelBtn = document.getElementById("close-milestone-panel");
+  if (openPanelBtn) {
+    openPanelBtn.addEventListener("click", () => {
+      import("./milestonePanel.js").then((mod) => {
+        mod.openMilestonePanel();
+        mod.renderMilestonePanel();
+      });
+    });
+  }
+  if (closePanelBtn) {
+    closePanelBtn.addEventListener("click", () => {
+      import("./milestonePanel.js").then((mod) => mod.closeMilestonePanel());
+    });
+  }
 
-  // Copy/Share/Download Progress
-  const copyBtn = document.getElementById("copy-progress");
-  if (copyBtn) copyBtn.addEventListener("click", copyProgressText);
-  const shareBtn = document.getElementById("share-image");
-  if (shareBtn) shareBtn.addEventListener("click", shareProgressImage);
-  const downloadBtn = document.getElementById("download-image");
-  if (downloadBtn) downloadBtn.addEventListener("click", downloadProgressImage);
+  // (Removed duplicate Hamburger Menu Dropdown block)
 
   loadMilestones().then(updateUI);
   setInterval(updateUI, 1000);
