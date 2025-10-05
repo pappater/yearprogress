@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Year Progress</title>
+    <title>Yearify</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   </head>
@@ -64,7 +64,7 @@
     </div>
     <div class="container">
       <header class="app-header">
-        <h1 class="app-title">Year Progress Tracker</h1>
+        <h1 class="app-title">Yearify</h1>
         <div class="app-subtitle">
           Visualize your year, month, week, and day progress
         </div>
@@ -77,14 +77,85 @@
       </div>
       <div class="milestone-section">
         <label>Add Milestone</label>
-        <input type="date" id="milestone-date" />
-        <input
-          type="text"
-          id="milestone-label"
-          placeholder="Label (optional)"
-          maxlength="20"
-        />
-        <button id="add-milestone">Add</button>
+        <button id="show-add-milestone-modal">Add Milestone</button>
+        <button
+          id="open-milestone-panel"
+          style="float: right; margin-left: 8px"
+        >
+          Manage Milestones
+        </button>
+      </div>
+
+      <!-- Add Milestone Modal -->
+      <div
+        id="add-milestone-modal"
+        style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(24, 28, 32, 0.85);
+          z-index: 10001;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div
+          style="
+            background: #23272f;
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px #0008;
+            min-width: 320px;
+            max-width: 90vw;
+          "
+        >
+          <h2 style="color: #00cec9; margin-top: 0">Add Milestone</h2>
+          <form id="add-milestone-form">
+            <div style="margin-bottom: 1rem">
+              <label>Date:</label><br />
+              <input type="date" id="modal-milestone-date" required />
+            </div>
+            <div style="margin-bottom: 1rem">
+              <label>Time:</label><br />
+              <input type="time" id="modal-milestone-time" />
+            </div>
+            <div style="margin-bottom: 1rem">
+              <label>Label:</label><br />
+              <input
+                type="text"
+                id="modal-milestone-label"
+                maxlength="20"
+                placeholder="Label (optional)"
+              />
+            </div>
+            <div style="margin-bottom: 1rem">
+              <label>Color:</label><br />
+              <input type="color" id="modal-milestone-color" value="#00cec9" />
+            </div>
+            <div style="margin-bottom: 1rem">
+              <label>Icon (emoji):</label><br />
+              <input
+                type="text"
+                id="modal-milestone-icon"
+                maxlength="2"
+                placeholder="e.g. 🎉"
+              />
+            </div>
+            <div style="text-align: right">
+              <button
+                type="button"
+                id="cancel-add-milestone"
+                style="margin-right: 1rem"
+              >
+                Cancel
+              </button>
+              <button type="submit">Add</button>
+            </div>
+          </form>
+        </div>
       </div>
       <div class="progress-section">
         <label>Year</label>
@@ -151,7 +222,48 @@
           >
         </div>
       </footer>
+      <!-- Milestone Management Panel -->
+      <div
+        id="milestone-panel"
+        style="
+          position: fixed;
+          top: 0;
+          right: -400px;
+          width: 400px;
+          height: 100vh;
+          background: #23272f;
+          box-shadow: -2px 0 16px #0008;
+          z-index: 10000;
+          transition: right 0.3s;
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #1e222a;
+          "
+        >
+          <span style="font-size: 1.2rem; color: #00cec9">Milestones</span>
+          <button
+            id="close-milestone-panel"
+            style="
+              background: none;
+              border: none;
+              font-size: 1.5rem;
+              color: #fff;
+            "
+          >
+            &times;
+          </button>
+        </div>
+        <div id="milestone-panel-content" style="padding: 1rem"></div>
+      </div>
     </div>
     <script type="module" src="ui.js"></script>
+    <script type="module" src="milestonePanel.js"></script>
   </body>
 </html>

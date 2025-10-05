@@ -258,17 +258,56 @@ export function setupEventListeners() {
     .getElementById("logout-github")
     .addEventListener("click", logoutGitHub);
   // Add Milestone button
-  const addBtn = document.getElementById("add-milestone");
-  const dateInput = document.getElementById("milestone-date");
-  const labelInput = document.getElementById("milestone-label");
-  if (addBtn && dateInput) {
-    addBtn.addEventListener("click", async () => {
-      if (dateInput.value) {
-        await addMilestone(dateInput.value, labelInput.value);
-        dateInput.value = "";
-        labelInput.value = "";
-        updateUI();
-      }
+  // Modal logic for adding milestone
+  const showModalBtn = document.getElementById("show-add-milestone-modal");
+  const modal = document.getElementById("add-milestone-modal");
+  const form = document.getElementById("add-milestone-form");
+  const cancelBtn = document.getElementById("cancel-add-milestone");
+  if (showModalBtn && modal && form && cancelBtn) {
+    showModalBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+    cancelBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      form.reset();
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const date = document.getElementById("modal-milestone-date").value;
+      const time = document.getElementById("modal-milestone-time").value;
+      const label = document.getElementById("modal-milestone-label").value;
+      const color = document.getElementById("modal-milestone-color").value;
+      const icon = document.getElementById("modal-milestone-icon").value;
+      const milestone = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+        date,
+        time: time || "",
+        label,
+        customization: { color: color || "#00cec9", icon: icon || "" },
+      };
+      const mod = await import("./milestoneData.js");
+      await mod.addMilestone(milestone);
+      modal.style.display = "none";
+      form.reset();
+      // Reload milestones and update UI
+      window.milestones = await mod.getMilestones();
+      updateUI();
+    });
+  }
+  // Milestone panel open/close
+  const openPanelBtn = document.getElementById("open-milestone-panel");
+  const closePanelBtn = document.getElementById("close-milestone-panel");
+  if (openPanelBtn) {
+    openPanelBtn.addEventListener("click", () => {
+      import("./milestonePanel.js").then((mod) => {
+        mod.openMilestonePanel();
+        mod.renderMilestonePanel();
+      });
+    });
+  }
+  if (closePanelBtn) {
+    closePanelBtn.addEventListener("click", () => {
+      import("./milestonePanel.js").then((mod) => mod.closeMilestonePanel());
     });
   }
 
