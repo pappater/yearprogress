@@ -315,18 +315,18 @@ export class AuthManager {
     if (this.githubUser) {
       // User is logged in
       if (this.userInfo) {
-        this.userInfo.textContent = `Logged in as ${this.githubUser.login}`;
-        this.userInfo.style.display = "";
+        this.userInfo.textContent = `${this.githubUser.login}`;
+        this.userInfo.style.display = "inline-flex";
       }
       if (this.loginBtn) this.loginBtn.style.display = "none";
-      if (this.logoutBtn) this.logoutBtn.style.display = "";
+      if (this.logoutBtn) this.logoutBtn.style.display = "inline-flex";
     } else {
       // User is not logged in
       if (this.userInfo) {
         this.userInfo.textContent = "";
         this.userInfo.style.display = "none";
       }
-      if (this.loginBtn) this.loginBtn.style.display = "";
+      if (this.loginBtn) this.loginBtn.style.display = "inline-flex";
       if (this.logoutBtn) this.logoutBtn.style.display = "none";
     }
   }
